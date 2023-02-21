@@ -1,0 +1,5 @@
+:support-email: amp-support@akamai.com
+
+== Additional Information
+
+This guide was written on {date} and it's last revision was made on {last-revision}. If you need any additional support please contact us through our offical mailto:{support-email}[support email].

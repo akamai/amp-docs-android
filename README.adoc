@@ -1,0 +1,12 @@
+= Demo Documentation AMP Player
+:url-project: https://player.akamai.com/
+
+Deliver high-quality, responsive media playback into your web pages and applications using Adaptive Media Player.
+
+== Copyright and License
+
+Copyright © 2023 Akamai Technologies, Inc. All rights reserved
+
+== Authors
+
+Development of AMP Player is led and sponsored by the AMP Team.

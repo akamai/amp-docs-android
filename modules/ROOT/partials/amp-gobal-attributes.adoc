@@ -1,0 +1,11 @@
+:amp-distribution: https://mdtp-a.akamaihd.net/amp-ios-sdk/premier
+:cocoapods-docs: https://guides.cocoapods.org/
+:support-email: amp-support@akamai.com
+:highlightjsdir: ../highlight
+:source-highlighter: highlightjs
+:highlightjs-theme: github
+:amp-player-docs: https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/ios/AmpCore/amp-core/
+:amp-player-events-docs: https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/ios/AmpCore/amp-core/
+:stylesdir: ../stylesheets
+:stylesheet: github.css
+

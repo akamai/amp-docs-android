@@ -1,0 +1,13 @@
+include::ROOT:partial$amp-gobal-attributes.adoc[]
+
+= AMP Plugin 1
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam vestibulum lectus eget augue efficitur vestibulum. Sed consequat, nulla sed facilisis pharetra, mi massa varius ligula, id efficitur tortor est a mauris. Praesent massa mauris, posuere eget massa ut, ultricies pulvinar diam. Phasellus varius accumsan tincidunt. Vestibulum quis mattis diam. Praesent pretium condimentum erat, nec ultricies nibh iaculis mollis. Pellentesque iaculis gravida quam ut mollis. Curabitur a accumsan lectus, vel interdum tellus. Curabitur faucibus ultricies mauris non cursus.
+
+Aenean quis urna vitae sem ultricies fermentum. Suspendisse ante tellus, auctor nec molestie ac, facilisis et lacus. Donec finibus id dui eget fringilla. Duis lectus nisi, pellentesque non magna sit amet, posuere imperdiet ligula. Proin non dignissim nunc. Ut at ultricies diam. Nunc mollis elementum nibh, non ornare justo euismod ac. Quisque eget viverra lacus. Phasellus sollicitudin sem vel odio semper, eget malesuada tellus tincidunt.
+
+image::home.png[align="center"]
+
+:date: 20/2/2023
+:last-revision: 20/3/2023
+include::ROOT:partial$amp-additional-info.adoc[]

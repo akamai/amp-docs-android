@@ -1,0 +1,10 @@
+name: amp-android-sdk
+title: AMP Android SDK
+version: 10.1.x
+start_page: getting-started.adoc
+asciidoc:
+  attributes:
+    source-language: asciidoc@
+    table-caption: false
+nav:
+- modules/ROOT/nav.adoc

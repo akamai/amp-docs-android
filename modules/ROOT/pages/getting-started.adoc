@@ -1,0 +1,5 @@
+= Get Started
+
+image::android.png[align="center"]
+
+Akamai AMP SKDs make it easy to add video playback functionality to your iOS and tvOS projects. With an out-of-the-box solution, you can have playback in your app in no time. We also support many of the playback add ons on the market, such as analytics, advertaisement (both client-side and server-side), VR, and more.

@@ -1,0 +1,105 @@
+== Adding the Plugin to the Xcode project
+
+=== Manual Installation
+
+ifdef::external-sdk-url[]
+
+To manually install the plugin you'll need to download our {amp-distribution}[latest distribution]. You'll have to look for the `{framework-name}.framework` and the `AmpCore.framework`, for tvOS look instead for the `AmpCoreTV.framework` and the `{framework-name}TV.framework`.
+
+You will also need the {external-sdk-name} for iOS/tvOS, you can download it on the {external-sdk-url}[release page].
+
+endif::external-sdk-url[]
+
+ifndef::external-sdk-url[]
+ifdef::external-sdk-ios-url[]
+
+To manually install the plugin you'll need to download our {amp-distribution}[latest distribution]. You'll have to look for the `{framework-name}.framework` and the `AmpCore.framework`. You will also need the {external-sdk-name} for iOS, you can download it on the {external-sdk-ios-url}[iOS release page].
+
+ifdef::external-sdk-tvos-url[]
+
+For tvOS you should include the `AmpCoreTV.framework` and the `{framework-name}TV.framework`. The {external-sdk-name} for tvOS will be required as well, you can download it on the {external-sdk-tvos-url}[tvOS release page].
+
+endif::external-sdk-tvos-url[]
+endif::external-sdk-ios-url[]
+
+
+ifndef::external-sdk-ios-url[]
+ifdef::external-sdk-tvos-url[]
+
+To manually install the plugin you'll need to download our {amp-distribution}[latest distribution].For tvOS you should include the `AmpCoreTV.framework` and the `{framework-name}TV.framework`. The {external-sdk-name} for tvOS will be required as well, you can download it on the {external-sdk-tvos-url}[tvOS release page].
+
+endif::external-sdk-tvos-url[]
+endif::external-sdk-ios-url[]
+
+endif::external-sdk-url[]
+
+ifndef::external-sdk-url[]
+ifndef::external-sdk-ios-url[]
+ifndef::external-sdk-tvos-url[]
+
+To manually install the plugin you'll need to download our {amp-distribution}[latest distribution]. You'll have to look for the `{framework-name}.framework` and the `AmpCore.framework`, for tvOS look instead for the `AmpCoreTV.framework` and the `{framework-name}TV.framework`.
+
+endif::external-sdk-tvos-url[]
+endif::external-sdk-ios-url[]
+endif::external-sdk-url[]
+
+ifdef::latest-ios-version,latest-tvos-version[]
+NOTE: The latest version of the {external-sdk-name} used by this plugin is 
+ifdef::latest-ios-version[{latest-ios-version} on iOS]
+ifdef::latest-tvos-version[]
+ifdef::latest-ios-version[and]
+{latest-tvos-version} on tvOS 
+endif::latest-tvos-version[]
+. Newer versions may be used, but you may run into unexpected errors until an update is released.
+endif::latest-ios-version,latest-tvos-version[]
+
+After aquiring the frameworks you can just drag them to you Xcode project directory.
+
+image::manual-installation-1.png[align="center"]
+
+The last step, is to mark every imported framework for `Embed & Sign` in the project's general tab.
+
+image::manual-installation-2.png[align="center"]
+
+=== CocoaPods
+
+If you don't have CocoaPods installed, refer to the {cocoapods-docs}[CocoaPods documentation]. To use CocoaPods, first create a Podfile in the directory containing the Xcode project. For the {framework-name} plugin, the Podfile should look like this:
+
+ifdef::external-sdk-podname[]
+[source,bash,subs="attributes"]
+----
+target "ProjectName" do 
+
+  use_frameworks!
+  
+  pod 'AmpCore'
+  pod '{framework-name}'
+  pod '{external-sdk-podname}'
+  
+end
+----
+endif::external-sdk-podname[]
+ifndef::external-sdk-podname[]
+[source,bash,subs="attributes"]
+----
+target "ProjectName" do 
+
+  use_frameworks!
+  
+  pod 'AmpCore'
+  pod '{framework-name}'
+  
+end
+----
+endif::external-sdk-podname[]
+
+ifeval::[{not-embedded} == true]
+NOTE: AmpCore is needed for the plugin to work, as well as {external-sdk-name} since they aren't embedded in the plugin.
+endif::[]
+ifeval::[{not-embedded} == false]
+NOTE: AmpCore is needed for the plugin to work, since it isn't embedded in the plugin.
+endif::[]
+
+
+Once you have added the Podfile just run the command `pod install --repo-update` in the directory it's located. Once the command has been completed you should se a new `.xcworkspace` file in your folder. Now you can start integrating the library.
+

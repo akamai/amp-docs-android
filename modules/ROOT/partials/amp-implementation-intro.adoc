@@ -1,0 +1,3 @@
+:amp-player-docs: https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/ios/
+
+You need a working implementation of the AmpPlayer before using this plugin. If you need the implementation guide for AmpPlayer please refer to {amp-player-docs}[our documentation].
