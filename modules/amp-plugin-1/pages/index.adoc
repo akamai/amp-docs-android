@@ -1,4 +1,4 @@
-include::ROOT:partial$amp-gobal-attributes.adoc[]
+include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
 
 = AMP Plugin 1
 
@@ -10,4 +10,4 @@ image::home.png[align="center"]
 
 :date: 20/2/2023
 :last-revision: 20/3/2023
-include::ROOT:partial$amp-additional-info.adoc[]
+include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]
