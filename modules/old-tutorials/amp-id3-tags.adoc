@@ -1,0 +1,69 @@
+= ID3 Tags
+:categories: ["others"]
+:page-layout: techdocs-devices
+
+The following document describes how to implement ID3 Tags module from AMP Android SDK.
+
+== Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+
+== Getting started
+
+For reference, check the ID3TagSample Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
+
+1) Add the *amp-id3-tags.jar* to your project's */libs* folder.
+
+2) In the Activity where playback is handled, import the following Java packages:
+
+[,java]
+----
+    import com.akamai.amp.id3tags.ID3TagData;
+    import com.akamai.amp.id3tags.ID3TagEventListener;
+    import com.akamai.amp.id3tags.ID3TagExtractorMessageHandler;
+----
+
+3) Add an object of the ID3TagExtractorMessageHandler type in your Activity's members:
+
+[,java]
+----
+    private ID3TagExtractorMessageHandler mId3TagExtractorMessageHandler;
+----
+
+4) Initialize that object, on the `onResourceReady()` method from the VideoPlayerContainerCallback:
+
+[,java]
+----
+    @Override
+    public void onResourceReady(MediaResource mediaResource) {
+        resource = mediaResource;
+        mId3TagExtractorMessageHandler = new ID3TagExtractorMessageHandler();
+        mId3TagExtractorMessageHandler.setVideoPlayerView(mVideoView);
+        mId3TagExtractorMessageHandler.addEventListener(MainActivity.this);
+        mVideoView.play(resource);
+    }
+----
+
+5) Make your Activity implement the ID3TagEventListener. This interface has a single method:
+
+[,java]
+----
+    public boolean onFoundID3TagData(ID3TagData data);
+----
+
+6) Implement the onFoundID3TagData() method, to receive the ID3 tags and handle them in your own custom way:
+
+[,java]
+----
+    public boolean onFoundID3TagData(ID3TagData data) {
+        String id3Tag = data.getText();
+        Log.i(LOG_TAG, id3Tag);
+          .
+          .
+         return true;
+    }
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

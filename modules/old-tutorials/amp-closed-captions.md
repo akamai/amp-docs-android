@@ -1,0 +1,92 @@
+---
+layout: techdocs-devices
+title: Close Captions (WebVTT and CEA-608)
+categories: [others]
+---
+
+The following document describes how to implement Close Captions Module from AMP Android SDK.
+
+
+## Introduction
+
+Before you continue be aware that AMP Android SDK can be integrated with different approaches:
+
+* AMP Basic Integration: AMP Android SDK has a standard API to implement all features. [AMP Basic Integration](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/). It requires more code development and gives more freedom. For example: it allows UI control customization, rebuild the UI Controls completely, integration of Server Side Ad Insertion like DAI and Client Side Ad Insertion like IMA at the same time.
+* AMP Player Wrapper Integration: AMP Android SDK has a Wrapper module called [AmpPlayer module](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player/). This module simplifies the implementation even further. It is intended for customers who want a quick integration, with almost no customizations and a default UI. The AMP Player module unifies and coordinates all the different plugins we provide: playback, UI (scrubbar, buttons and events), Close Captions, ads and analytics. With this new module we are saving  the developer most integration effort, by providing a single drag and drop plugin that will provide production quality results in a matter of a few minutes.
+
+Reach out to us at <amp-sdk-support@akamai.com> with any questions or concerns.
+
+
+## Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): [Basic Integration](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/)
+
+## Getting started
+
+For reference, check the AMPCaptioningSample Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
+
+1) Add the **amp-closed-captions.jar** to your project's **/libs** folder. 
+
+2) In the Activity where playback is handled, import the following Java package:
+
+```java
+    import com.akamai.amp.captioning.AmpCaptionComponent;
+```
+
+3) Add an object of the CaptionComponent type in your Activity's members:
+
+```java
+    private AmpCaptionComponent captionComponent;
+```
+
+4) The `AmpCaptionComponent` is a View type object, so can declare it in the layout .xml of the respective Activity or Fragment in the **/layout** folder:
+
+```xml
+   <com.akamai.amp.captioning.AmpCaptionComponent
+        android:id="@+id/captionView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="false" />
+```        
+
+5) To initialize the AmpCaptionComponent, instantiate the object as you would do with any other UI component defined in the .xml layout:
+     
+
+6) On the `onResourceReady()` method from the `VideoPlayerContainerCallback`, make sure to pass the reference of the `VideoPlayerView` object :
+
+```java
+            captionComponent.setVideoPlayerView(videoPlayerView);
+```
+
+7) And finally, set the index of the captions track you wish to load using the following method: 
+
+```java
+            /*Track index: position of the track you wish to load out of the list of available caption tracks
+             Format index: in case you need to manually set the format of the metada data format, pass the format index of the same, otherwise, set it to Zero*/
+            captionComponent.setIndexes(0, 0);
+```
+
+8) To either enable or disable the Captions from the player, use the following methods at your discretion: 
+```java
+            captionComponent.hide();
+             captionComponent.show();
+```
+## SideLoaded Captions
+
+The player also provides the option to load captions which are not embedded into the stream, for example WebVTT sources, so to enable those you need to:
+
+1) Set a list of `SideloadedCaptionsData` objects for the Captions Component to sideload. Each one of those objects represent a specific captions source, where you need to define the type of captions, its url, identifier and language.
+
+```java
+        SideloadedCaptionsData cc2 = new SideloadedCaptionsData(MimeTypes.TEXT_VTT, WEBVTTS_A, "cc-id-0", "english");
+        SideloadedCaptionsData cc3 = new SideloadedCaptionsData(MimeTypes.TEXT_VTT, WEBVTTS_B, "cc-id-1", "japanese");
+        SideloadedCaptionsData cc4 = new SideloadedCaptionsData(MimeTypes.TEXT_VTT, WEBVTTS_C, "cc-id-2", "french");
+        SideloadedCaptionsData cc5 = new SideloadedCaptionsData(MimeTypes.TEXT_VTT, WEBVTTS_D, "cc-id-3", "klingon");
+
+        List<SideloadedCaptionsData> captions = Arrays.asList(cc2, cc3, cc4, cc5);
+
+        captionComponent.sideload(captions);
+```
+***
+
+If you have further questions or comments, reach out to us via <amp-sdk-support@akamai.com>

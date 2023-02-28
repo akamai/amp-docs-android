@@ -1,0 +1,87 @@
+= Akamai Media Analytics
+:categories: ["analytics"]
+:page-layout: techdocs-devices
+
+Akamai Media Analytics provides detailed client-side and server-side reporting services. Server-side reports typically contain audience engagement and content usage information. The client-side reports provide information on user interaction and bandwidth. The Android Media Analytics SDK supports Client-side Media Analytics (CSMA).
+
+== Overview
+
+CSMA support is enabled through the CSMA component -- a plug-in used by the player to gather various statistics that would be used to generate the reports. The CSMA plug-in uses a configuration XML file to identify the statistics to be collected and log them in a specific location. The configuration XML file path is provided during provisioning.
+
+== Introduction
+
+Before you continue be aware that AMP Android SDK can be integrated with different approaches:
+
+* AMP Basic Integration: AMP Android SDK has a standard API to implement all features. https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[AMP Basic Integration]. It requires more code development and gives more freedom. For example: it allows UI control customization, rebuild the UI Controls completely, integration of Server Side Ad Insertion like DAI and Client Side Ad Insertion like IMA at the same time.
+* AMP Player Wrapper Integration: AMP Android SDK has a Wrapper module called https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player/[AmpPlayer module]. This module simplifies the implementation even further. It is intended for customers who want a quick integration, with almost no customizations and a default UI. The AMP Player module unifies and coordinates all the different plugins we provide: playback, UI (scrubbar, buttons and events), Close Captions, ads and analytics. With this new module we are saving  the developer most integration effort, by providing a single drag and drop plugin that will provide production quality results in a matter of a few minutes.
+
+Reach out to us at link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com] with any questions or concerns.
+
+== Getting started
+
+For reference, check the `AmpAnalyticsAkamaiMedia` Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
+
+1) Add the following .jars to your project's /libs folder:
+
+* *android_malibrary.aar* (provided by the Akamai Media Analytics team)
+* *amp-analytics-akamai-media.jar* (provided by AMP)
+
+2) In the `Activity` where playback is handled, import the following Java packages:
+
+[,java]
+----
+import com.akamai.amp.analytics.akamaimedia.AmpAkamaiMediaAnalyticsTracker;
+import com.akamai.amp.config.data.MediaAnalyticsData;
+----
+
+3) Add an object of the `AmpAkamaiMediaAnalyticsTracker` type in your Activity's members:
+
+[,java]
+----
+private AmpAkamaiMediaAnalyticsTracker mediaAnalytics;
+----
+
+4) Initialize that object, on the `onResourceReady()` method from the VideoPlayerContainerCallback:
+
+[,java]
+----
+public void initAnalyticsTracker() {
+    ...
+    mediaAnalyticsTracker = new AmpAkamaiMediaAnalyticsTracker(playerView, buildMediaAnalyticsData());
+    ...
+}
+----
+
+5) The `buildMediaAnalyticsData()` method, returns a `com.akamai.config.data.MediaAnalyticsData` object. It's main method is `data.setMediaAnalyticsBeacon(String beacon)`.
+
+6) The `MediaAnalyticsData` object also has the `setMediaAnalyticsDimensions()`, it receives a `Map<String,String>` as parameter;
+
+[,java]
+----
+private Map<String,String> buildCustomDimensions() {
+    Map<String, String> customDimensions = new HashMap<>();
+    customDimensions.put("test", "customDimension");
+    customDimensions.put("another", "customDimension2");
+    customDimensions.put("playerId", "playerId-pd");
+    customDimensions.put("eventName", "eventName-en");
+    customDimensions.put("title", "title-tt");
+    customDimensions.put("show", "show-sh");
+    customDimensions.put("category", "category-cg");
+    customDimensions.put("subCategory", "subcategory-sc");
+    customDimensions.put("contentLength", "contentlength-cl");
+    customDimensions.put("device", "device-sa");
+
+    return customDimensions;
+}
+----
+
+7) If your app integrates ads, it should use the corresponding AMP Plugin for integration with Akamai Analytics. To report different events to AMP's Akamai Analytics object:
+
+[,java]
+----
+adsComponent.addEventsListener(akamaiAnalytics);
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

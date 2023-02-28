@@ -1,0 +1,72 @@
+= AMP Ultra Low Latency Support
+:categories: ["others"]
+:page-layout: techdocs-devices
+
+The following document shows you how to fully take advantage of your Ultra Low Latency streams with AMP for Android.
+
+== Description
+
+Akamai has been working on implementing Ultra Low Latency (ULL), 3 seconds or lower in latency for live streaming in the last couple of years. Now, AMP adjusts the normal playback process to support MPEG-DASH and HLS ULL streams. The whole idea in having our player supporting live streaming with Ultra Low Latency (ULL) is to maximize the best OTT experience in terms of live performance.
+
+== Prerequisite
+
+* This guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+* The streams must be properly configured to support Ultra Low Latency (MPEG-DASH or LHLS) for AMP to use them accordingly.
+
+== How To
+
+To play Ultra Low Latency streams with AMP, you must:
+
+* *Enable Low Latency mode:* The player will treat a few things differently when playing a Low Latency stream. To enable that behavior, you must call one of the following methods, before calling the `prepareResource` method:
+
+----
+mVideoPlayerContainer.turnOnLowLatency(boolean allowSeekJumps, int targetBufferMs, int maxBufferMs);
+----
+
+_allowSeekJumps:_ Buffering is not unavoidable when using ULL, it can cost the playback to fall behind the live edge. In case that occurs, the player calculates how far behind the playback really is and if the amount is greater than the max buffer set, it can perform a seek operation to move back in place. This can be enabled by passing the `allowSeekJumps` as true in this method, false otherwise.
+
+_TargetBufferMS:_ There are four different values that can be configured in for the buffer in AMP:
+
+* _MIN_BUFFER_MS:_ The minimum duration of media that the player will attempt to ensure is buffered at all times, in milliseconds.
+* _MAX_BUFFER_MS:_ The maximum duration of media that the player will attempt to buffer, in milliseconds.
+* _BUFFER_FOR_PLAYBACK_MS:_ The duration of media that must be buffered for playback to start or resume following a user action such as a seek, in milliseconds.
+* _BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS:_ The default duration of media that must be buffered for playback to resume after a rebuffer, in milliseconds. A rebuffer is defined to be caused by buffer depletion rather than a user action.
+
+For regular playback AMP sets the following values as default:
+
+* _DEFAULT_MIN_BUFFER_MS_ = 15 seconds.
+* _DEFAULT_MAX_BUFFER_MS_ = 30 seconds.
+* _DEFAULT_BUFFER_FOR_PLAYBACK_MS_ = 2.5 seconds.
+* _DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS_ = 5 seconds.
+
+For ULL, these values are not ideal because under normal circunstances, they maintain a conservative amount of content ready to be used at all times, contrary to what we need with a ULL stream, where we make sure the player starts the playback and has just enough content to play, meaning that the buffer must be as small as possible.
+
+Using the method above you can change that, the targetBufferMs corresponds to the latency you want to achieve and the MIN_BUFFER_MS, DEFAULT_BUFFER_FOR_PLAYBACK_MS and DEFAULT_BUFFER_FOR_PLAYBACK_AFTER_REBUFFER_MS are modified based on it.
+
+_MaxBufferMs:_ It defines the MAX_BUFFER_MS and also determines the limit allowed by the player to force a seek operation, in case allowSeekJumps is set to true.
+
+----
+mVideoPlayerContainer.turnOnLowLatency(boolean allowSeekJumps);
+----
+
+It behaves exactly as `turnOnLowLatency(boolean allowSeekJumps, int targetBufferMs, int maxBufferMs)`, but using the default target buffer (3 seconds) and max buffer (10 seconds) values defined by AMP.
+
+* *Provide the mime type of the stream:* AMP performs a mime type validation to determine the type of stream received as input and creates the proper instances for decoding. However, if you notify beforehand what type of stream it is, AMP can skip said validation and start the playback faster.
+
+Simply provide the mime type as follows:
+
+----
+mVideoPlayerContainer.prepareResource("stream.mpd", "application/dash+xml");
+----
+
+In this case, it notifies the player the stream is an MPEG-DASH.
+
+== What to expect
+
+In summary, whenever Ultra Low latency is turned on, AMP will make sure to maintain the playback as close to the real live edge as possible. It is going to risk having smaller buffers and a more aggresive starting positions to avoid falling behind. It also takes advantages of NTP servers to keep checking the real gap in time being experienced. If your goal is to maintain a low latency for your playback, there is a trade off on certain aspects to be considered.
+
+For example, on poor internet connections a precaution to avoid unnecessary buffering events is to increase the buffer size, to make sure the playback will have a "safety net" big enough in front of it. In case of ULL, it is quite the opposite, we need to maintain smaller buffer sizes to speed up the playback. Challenging or unstable internet connections will not be ideal, a steady, fast internet connection and a proper reasonable renditions defined in the stream will be required to guarantee a better experience.
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

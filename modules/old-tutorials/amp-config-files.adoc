@@ -1,0 +1,457 @@
+= Configuration Files
+:categories: ["config"]
+:page-layout: techdocs-devices
+
+The following document describes what configuration files are and how they work with the Android AMP SDK.
+
+== What is a Config File?
+
+A configuration file is an archive, generally hosted in the cloud, that contains data in json format used to define and configure Media Resources. Following a specific structure defined by the AMP Team, configuration files can be used to provide data for Ads, Analytics, Closed Captions, Metadata, and several other options.
+
+=== Config files define:
+
+* *Media Source:* This section defines the actual video content and its conditions for playback, such as source for the stream, backup sources, video formats, closed captions, title, description, poster image and others.
+
+Media sources can be defined using two options; creating a "_media_" object, which is basically a light version of a media source; or defining a "_feed_" object, which is a more detailed media source based on the MRSS standard.
+
+Here's an example of a Media object:
+
+[,json]
+----
+    "media": {
+     "title": "VOD Sample",
+         "poster": "../resources/images/hd_world.jpg",
+         "duration": 108,
+         "source": [{
+     "src": "http://multiplatform-f.akamaihd.net/z/multi/april11/hdworld/hdworld_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,1280x720_1900_m,1280x720_2500_m,1280x720_3500_m,.mp4.csmil/manifest.f4m",
+           "type": "video/f4m"
+     }, {
+     "src": "http://multiplatform-f.akamaihd.net/i/multi/april11/hdworld/hdworld_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,1280x720_1900_m,1280x720_2500_m,1280x720_3500_m,.mp4.csmil/master.m3u8",
+           "type": "application/x-mpegURL"
+     }],
+         "track": [{
+     "kind": "captions",
+           "type": "application/ttml+xml",
+           "src": "captioning.xml"
+     }]
+    },
+----
+
+And this is how a Feed object looks like on a Config File:
+
+[,json]
+----
+    "feed": {
+        "enabled": true,
+        "data": {
+        "@attributes": {
+        "version": "2.0"
+        },
+        "channel": {.
+                    .
+                    "media-group": {
+                    "media-subTitle": {
+                    "@attributes": {.
+                         .
+                      },
+                    "media-content": [{
+                          "@attributes": {
+                             "isDefault": "true",
+                             "medium": "video",
+                             "url": "VIDEOURL",
+                             "type": "application/f4m+xml",
+                             "duration": "470"
+                         },
+                     "media-category": {
+                       "@attributes": {
+                          "schema": "http://mrss.akamai.com/user_agent_hint",
+                          "label": "HDS_ALL"
+                    }
+                 },
+                   "media-copyright": ""
+                 },
+                    .
+                    .
+                    .
+                    ..
+                    "media-title": "TITLE",
+                    "media-description":
+                    "DESCRIPTION",
+                    "media-player": {
+                    "@attributes": {.
+                    .
+                }
+                 },
+                 "media-thumbnail": {
+                    "@attributes": {.
+                       .
+                    }
+                 }
+              },
+        "show": {
+        "logo": "/img/logos/your-world.png",
+        "logo_url": "/playlist/on-air-your-world"
+           }
+        }
+     }
+----
+
+Feed objects can also be defined on a second file, so the feed tag in the config file might reference another file:
+
+[,json]
+----
+    "feed": {
+        "enabled": true,
+        "url": "FEED_URL"
+    }
+----
+
+By defining a source in the Config file using either of the options above, the AMP player will know where to look for the information and will perform the playback based on the data provided.
+
+Modules and Player Configuration: It basically defines data for the player's behavior and the different features, such as autoplay, UI Controls, Media Analytics, Advertisement and others.
+
+== Prerequisites
+
+Prerequisites might change depending on which sections of the Config file are needed. For the Basic use of the config file (playback only) the requisites are the same as the Basic Core implementation (see BasicSample in the release page).
+
+For usage of the config files with a specific module, the prerequisites are the same as the basic integration of said module (see modules Directory and its samples in the release page).
+
+== How to use
+
+If you set a Config file on the player implementation, it doesn't mean you are forced to configure all its content, you can decide and choose what to use and what not to use from the Config.
+
+Having said that, there are two steps required while using the Config files on our SDK:
+
+Set the source of the Config file to the player (one single implementation). Add the implementation required to use the data provided on the Config (it varies depending on the feature).
+
+== Setting the Config File
+
+Simply call the following method before calling the `prepareResource()` method in your implementation, and as parameter, set the URL of where the config file is hosted:
+
+[,java]
+----
+    videoPlayerContainer = (VideoPlayerContainer) findViewById(R.id.playerViewCtrl);
+    videoPlayerContainer.setConfig("CONFIG_FILE_URL");
+    videoPlayerContainer.prepareResource(VIDEO_URL);
+----
+
+=== Use the Config File set
+
+The use of the Config file depends on which feature are you implementing. Here's a list of all the options available:
+
+* *Playback*: In order to play the video content set in the Config file, you need to select the correct method to prepare the player for playback. There are three methods available to prepare a resource in AMP, you need to choose the correct one based on the type of media source you have:
+ ** `videoPlayerContainer.prepareResource(VIDEO_URL)`:  It prepares the playback of the Stream URL provided, not extra values, and it doesn't use any source contained in the Config File.
+ ** `videoPlayerContainer.setMediaFromConfig()`:  It notifies the Player that, the Media Source ready to play is located under the media tag in the Config File.
+ ** `videoPlayerContainer.setFeedDataFromConfig()`: It notifies the Player that, the Media Source ready to play is located under the feed tag in the Config File.
+* *IMA*: Once the Config file was correctly set to the player, in order to configure your current IMA integration (using our IMA Ads Module) to use the data provided in the Config file, just remove the line where the AdsUrl is provided:
+
+[,java]
+----
+    adsComponent.setAdsUrl(ADS_URL);
+----
+
+By omission, the player knows the URL is being provided in the Config File.
+
+And, the section in the configuration file must be added as follows:
+
+[,json]
+----
+    "ima": {
+
+        "resources": [{
+
+          "type": "text/javascript",
+
+          "src": "//imasdk.googleapis.com/js/sdkloader/ima3.js",
+
+          "debug": "//imasdk.googleapis.com/js/sdkloader/ima3_debug.js"
+
+        }],
+
+        "enabled": true,
+
+        "version": 3,
+
+        "adTagUrl": "//pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod&cmsid=496&vid=short_onecue&correlator=",
+
+        "disableCompanionAds": false,
+
+        "ppid": "ABCDE123456789012345678901234567",
+
+        "vpaidMode": "enabled",
+
+        "companions": [{
+
+          "id": "companion-container",
+
+          "width": 300,
+
+          "height": 250
+
+        }]
+
+      },
+----
+
+For more information on how to implement IMA Ads on AMP, see the AMP Android SDK: IMA Integration.
+
+* *Freewheel*: Once the Config file was correctly set to the player, in order to configure your current Freewheel integration (using our Freewheel Ads Module) to use the data provided in the Config file, just change the constructor used to instantiate the FWAdsComponent object.
+
+[,java]
+----
+    fwAdComponent = new FWAdComponent(this);
+----
+
+By creating an instance of the FWAdsComponent with just the Activity context as parameters, the player automatically looks for these values in the Config file.
+
+And, the section in the configuration file must be added as follows:
+
+[,json]
+----
+    "freewheel": {
+          "enabled": true,
+          "resources": [{
+                "type": "text/javascript",
+                "src": "//adm.fwmrm.net/p/vitest-js/AdManager.js"
+          }],
+       "plugin": {
+             "swf": "//adm.fwmrm.net/p/vitest-as3/AdManager.swf?logLevel=VERBOSE"
+        },
+       "networkId": 42015,
+       "serverUrl": "//demo.v.fwmrm.net/",
+       "profileId": "fw_tutorial_android",
+       "siteSectionId": "fw_tutorial_android",
+       "videoAssetId": "fw_simple_tutorial_asset",
+       "prerollSlotId": "Preroll_1",
+       "midrollSlotId": "Midroll_1",
+       "postrollSlotId": "Postroll_1",
+       "creativeParameters": [
+          "type",
+          "param2",
+          "param3"
+       ]
+    },
+----
+
+For more information on how to implement Freewheel Ads on AMP, see the AMP Android SDK: Freewheel Integration.
+
+* *Adobe HeartBeat*: Once the Config file was correctly set to the player, in order to configure your current Adobe Heartbeat integration (using our Adobe Heartbeat Module) to use the data provided in the Config file, just change the constructor used to instantiate the Component object.
+
+And, the section in the configuration file must be added as follows:
+
+[,json]
+----
+    "omniture":{
+
+          "heartbeat":{
+
+             "sdk":"Android AMP Player",
+
+             "trackingServer":"http://example.com",
+
+             "publisher":"sample-publisher",
+
+             "channel":"sample-channel",
+
+             "ovp":"sample-ovp",
+
+             "audience-manager-dpid":"67312378756723456",
+
+             "audience-manager-dpuuid":"550e8400-e29b-41d4-a716-446655440000",
+
+             "adobe-userid":"test-vid"
+
+          }
+
+       }
+----
+
+For more information on how to implement Heartbeat on AMP, see the AMP Android SDK: Adobe Heartbeat Integration.
+
+* *Comscore StreamSense*: Once the Config file was correctly set to the player, in order to configure your current StreamSense Analytics integration (using our ComScore StreamSense Module) to use the data provided in the Config file, just change the constructor used to instantiate the Component object.
+
+The section in the configuration file must be added as follows:
+
+[,json]
+----
+    "comscorestreamsense":{
+
+          "clientId":"0000000",
+
+          "publisherSecret":"publisherSecretId",
+
+          "appVersion":"0000000",
+
+          "metadata":{
+
+             "ads":{
+
+                "ns_st_ci":"#{media.guid}",
+
+                "c3":"*null",
+
+                "c4":"*null",
+
+                "c6":"*null",
+
+                "cb2":"*null",
+
+                "cb3":"*null",
+
+                "cb4":"*null",
+
+                "cb6":"*null"
+
+             },
+
+             "video":{
+
+                "ns_st_ci":"#{media.guid}",
+
+                "c3":"*null",
+
+                "c4":"*null",
+
+                "c6":"*null",
+
+                "cb2":"*null",
+
+                "cb3":"*null",
+
+                "cb4":"*null",
+
+                "cb6":"*null"
+
+             }
+
+          }
+
+       },
+----
+
+For more information on how to implement comscore on AMP, see the AMP Android SDK: Comscore StreamSense Integration.
+
+* *Google Analytics*: Once the Config file was correctly set to the player, in order to configure your current Google Analytics integration (using our Google Analytics Module) to use the data provided in the Config file, just change the constructor used to instantiate the GoogleAnalyticsTracker object, instead of passing the Tracking Id as parameter, just use the constructor that has no entry parameters.
+
+The section in the configuration file must be added as follows:
+
+[,json]
+----
+    "googleanalytics": {
+
+        "trackingId": "TRACKINGID"
+
+      },
+----
+
+For more information on how to implement Google Analytics on AMP, see the AMP Android SDK: Google Analytics Integration.
+
+* *Nielsen DCR*: Once the Config file was correctly set to the player, in order to configure your current Nielsen DCR Analytics integration (using our Nielsen Module) to use the data provided in the Config file, just change the constructor used to instantiate the Component object.
+
+The section in the configuration file must be added as follows:
+
+[,json]
+----
+    "nielsendcr":{
+
+          "data":{
+
+             "appid":"APPID",
+
+             "sfcode":"CODE",
+
+             "appname":"Akamai",
+
+             "appversion":"VERSION",
+
+             "nol_devDebug":"DEBUG"
+
+          },
+
+          "events":{
+
+             "video":{
+
+                "type":"content",
+
+                "assetName":"******",
+
+                "title":"TITLE",
+
+                "program":"My Program Name",
+
+                "censuscategory":"My Census Category",
+
+                "assetid":"myAssetId",
+
+                "channelName":"My Channel Name",
+
+                "segB":"segmentB",
+
+                "segC":"segmentC",
+
+                "isfullepisode":"y",
+
+                "crossId1":"Reference11",
+
+                "crossId2":"Reference22",
+
+                "airdate":"20161013 20:00:00",
+
+                "adloadtype":"2",
+
+                "mediaURL":"URL"
+
+             },
+
+             "ad":{
+
+                "type":"midroll",
+
+                "assetid_ad":"myMidrollAssetId",
+
+                "title":"Tutti Frutti Midroll Ad",
+
+                "hasAds":"1",
+
+                "adl":"30",
+
+                "noad":"1"
+
+             }
+
+          }
+
+       },
+----
+
+For more information on how to implement Nielsen DCR on AMP, see the AMP Android SDK: Nielsen DCR Integration.
+
+* *Akamai Media Analytics*: If the Configuration file was correctly set, the player will automatically look for the data and configure the implementation to trigger the beacons accordingly, there is not extra implementation needed. However, you can always change the config xml manually or add extra beacons to the queue. For more information on how to implement it, please refer to the Akamai Analytics User Guide.
+
+This is how the Media Analytics data is saved in the Configuration File:
+
+[,json]
+----
+"mediaanalytics": {
+   "resources": [{
+      "type": "text/javascript",
+      "src": ""
+   }],
+   "plugin": {
+      "swf": ""
+   },
+   "config": "CONFIG_URL",
+   "dimensions": {
+      "newbeacon": "beaconData",
+      .
+      .
+      "title": "#{media.title}",
+      "playerId": "#{player.mode} Player"
+   }
+},
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

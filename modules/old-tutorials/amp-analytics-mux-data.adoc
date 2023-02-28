@@ -1,0 +1,110 @@
+= Mux Data
+:categories: ["analytics"]
+:page-layout: techdocs-devices
+
+https://mux.com/data[Mux Data] is one of the many analytics trackers that https://player.akamai.com/[Akamai's Android AMP SDK] supports out of the box.
+
+To integrate Mux with Android AMP, you must follow the steps described in this document.
+
+For guidance, you can also check Akamai's `AmpAnalyticsMuxDataSample` Android Studio sample.
+
+== Integration
+
+Before you continue, be aware that Android AMP SDK can be integrated with two different approaches:
+
+* https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[AMP Basic Integration]: The Android AMP SDK has a standard API to implement all features. It requires more code and involvement from the developer, a tradeoff that gives you in exchange more control and more customization. For example: you could create custom UI controls, rebuild the UI Controls completely, mix Server Side Ad Insertion (like DAI) with Client Side Ad Insertion (like IMA), and others.
+* https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player/[AMP Player Wrapper Integration]: The Android AMP SDK has a wrapper module called the AmpPlayer module. It simplifies the implementation even further, by requiring much less code than the previous option. It is intended for customers who want a quick and easy integration; as a tradeoff, there's less room for customizations and you will get the default UI out of the box. This module unifies and coordinates all the different plugins we provide: playback, UI (scrubbar, buttons and events), Close Captions, ads and analytics. With this new module we are saving the developer most integration effort, by providing a single drag and drop plugin that will provide production quality results in a matter of a few minutes.
+
+Reach out to us at link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com] with any questions or concerns.
+
+== Prerequisite
+
+The rest of this guide assumes you have successfully https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[integrated AMP's Core] (you are able to play back a video).
+
+It also assumes you have started conversations with a Mux representative, for them to provide you with some custom metadata specific to your Android app, intended to uniquely identify your company and your app. Specifically, this is called the "Environment Key", on Mux's `CustomerPlayerData`, see step #5 below for more details.
+
+== Getting started
+
+For reference, check the `AmpAnalyticsMuxDataSample` Android Studio sample project on our release package.
+
+To integrate the plugin into your app, you will need to:
+
+1) Add the following .jars to your project's /libs folder:
+
+* *MuxCore.jar* (provided by Nielsen)
+* *amp-analytics-mux-data.jar* (provided by Akamai)
+
+2) In the Activity where playback is handled, import the following Java classes:
+
+[,java]
+----
+import com.akamai.amp.analytics.Mux.AmpMuxDataAnalyticsTracker;
+import com.akamai.amp.analytics.Mux.MuxData;
+import com.akamai.amp.analytics.Mux.MuxDataTracker;
+
+import com.mux.stats.sdk.core.model.CustomerPlayerData;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
+----
+
+3) Add an object of the `AmpMuxDataAnalyticsTracker` type to your Activity or Fragment:
+
+[,java]
+----
+    private AmpMuxDataAnalyticsTracker analytics;
+----
+
+4) Initialize that object, on the `onResourceReady()` method from the VideoPlayerContainerCallback, by calling there the following method:
+
+[,java]
+----
+    private void initMux() {
+        MuxData muxData = createMuxData(selectedVideo);
+        analytics = MuxDataTracker.create(videoPlayerView, muxData);
+
+        if (selectedVideo.expectsPreroll) {
+            analytics.expectPreroll();
+        }
+
+        if (ads != null) {
+            IAdsComponentListener adsListener = analytics.getiAdsComponentListener();
+            ads.addEventsListener(adsListener);
+        }
+    }
+----
+
+4.1) The `createMuxData()` method shown above, returns a `com.akamai.amp.analytics.mux.MuxData` object, for example:
+
+[,java]
+----
+    private MuxData createMuxData(Video video)
+    {
+        CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+        customerPlayerData.setEnvironmentKey(MUX_ENVIRONMENT_KEY);
+        customerPlayerData.setPlayerName(com.akamai.amp.media.elements.AMPLibraryInfo.NAME);
+        customerPlayerData.setPlayerVersion(com.akamai.amp.media.elements.AMPLibraryInfo.VERSION);
+
+        CustomerVideoData customerVideoData = new CustomerVideoData();
+        customerVideoData.setVideoSourceUrl(video.videoURL);
+        customerVideoData.setVideoTitle(video.title);
+        customerVideoData.setVideoContentType(video.type);
+
+        CustomerViewData customerViewData = new CustomerViewData();
+        customerViewData.setViewSessionId(MUX_SESSION_ID);
+
+        MuxData muxData = new MuxData(customerPlayerData, customerVideoData, customerViewData, true);
+        return muxData;
+    }
+----
+
+Of special importance is the `setEnvironmentKey()` method from the `CustomerPlayerData` object. Be sure to get this custom metadata, specific to your Android app, from your Mux representative.
+
+4.2) If your app integrates any ad provider, it should register the ``AmpMuxDataAnalyticsTracker``'s `IAdsComponentListener` with the ads, as shown in the code snippet seen on step #4. Repeat this step for every ad provider that you're using in your app.
+
+4.3) There is no way for the AMP SDK to know, before the fact, that a preroll ad is expected. If you aer having a preroll in your session, make sure to call the `expectPreroll()` method, as shown in the code snippet seen on step #4.
+
+5) Reach out to your Mux representative, to get the current certification checklist they provide. Once you have validated every item on the checklist is correct, you can send your app to Mux for certification.
+
+'''
+
+If you have further questions or comments, reach out to Akamai's AMP team via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

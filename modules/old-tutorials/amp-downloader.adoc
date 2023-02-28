@@ -1,0 +1,166 @@
+= Downloader for Offline Playback
+:categories: ["others"]
+:page-layout: techdocs-devices
+
+The following document shows you how to fully take advantage of the Amp downloader to store videos locally and watch them even when there is no internet connection.
+
+== Description
+
+The stream downloader is a functionality recently added to AMP's feature suite. It allows you to download selected video, audio and/or data tracks from a specific stream and store them in the device locally. The downloader also keeps track of the streams currently downloaded on the device, and notifies the player whenever an offline version of the selected video is going to be played. As a result, a previously downloaded stream can be watched without internet connection.
+
+== Prerequisite
+
+* This guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+
+== How to
+
+To download streams with AMP you must:
+
+* *Create an AmpDownloadManager instance:* An AMP instance has the scope of a playback session, meaning that if you need to implement the player on another view for example, a new instance is created. In case of the `AmpDownloadManager` you need to make it accesible for the entire App, since it keeps track of downloaded videos and you don't need to implement an AMP instance and play the stream to download it. Our recommendation is to create the instance in the `Application` object of your App as follows:
+
+[,java]
+----
+AmpDownloadManager ampDownloadManager = AmpDownloader.create(Context context, int maxParallelDownloads);
+----
+
+*Call an specific download action:*
+
+These are the main actions performed by the downloader:
+
+*Toogle Download:* It starts the extraction of the tracks available for download. Call the following method, It receives the activity context, name, uri and extension of the stream selected to download, and a `PrepareDownloadListener` which notifies whenever the list of tracks available is ready for selection:
+
+IMPORTANT: on Previous versions of the downloader, tracking selection for audio and metadata was not possible, with our current version, you can not only select them, but you can also select multiple renditions of the same type to download (before it was supported one rendition type only).
+
+[,java]
+----
+ampDownloadManager.toggleDownload(Context, String name, URI uri, String extension, PrepareDownloadListener listener);
+----
+
+Once the action is performed, there are three possible outcomes:
+
+* In case the stream selected only have a single rendition available to download, it is automatically selected and the downloader is ready to trigger the download action, in that case, the following callback if fired:
++
+[,java]
+----
+public void onSingleDownloadOptionAvailable() { }
+----
+
+* In case the stream has multiple renditions and audio tracks for selection, the downloader returns the MappedTrackInfo and TrackSelectionParameters with all the tracks information, this eventually is used by the developer to select which ones are going to be downloaded. In this case, the following callback is fired:
++
+[,java]
+----
+public void onMultipleDownloadOptionsAvailable(MappingTrackSelector.MappedTrackInfo mappedTrackInfo, DefaultTrackSelector.Parameters trackSelectorParameters) { }
+----
+
+* In case for some reason the action was not completed or no renditions were found for download, the downloader fires the following callback:
++
+[,java]
+----
+public void onFailed(IOException e) { }
+----
+
+*Extra Selection Renderers:* Before calling the start download action, you need to pass the class in charge of providing the tracks selected, more specifically, you need to implement in your code the `RendererSelectionListener` and make sure that the selected tracks for download are returned based on the renderer index.
+
+The `TrackSelectionViewFragment` can be used to display the options available for download, and to obtain the user selection. Our recommendation is to follow the AmpDownloaderSample located inside our release package, where this implementation is shown in detail.
+
+[,java]
+----
+ampDownloadManager.extractSelectedRenderers(RendererSelectionListener listener);
+----
+
+_Start Download:_ Perphaps the main option available for this feature, it starts the download action for a specific stream:
+
+[,java]
+----
+ampDownloadManager.startDownload(String name);
+----
+
+_name:_ You need to provide an unique name for the stream, this is for an easy to use control of the downloader videos, as well as a more user friendly notification.
+
+*Delete Download:* When you have downloaded a video before, you can remove it by calling the following method:
+
+[,java]
+----
+ampDownloadManager.deleteDownload(Uri uri);
+----
+
+_uri:_ This is a uri object based on the stream url, it functions as an identifier for the download.
+
+*Other Acitons*
+
+Besides the main actions mentioned above, the Downloader Manager also offers a number of methods to guarantee the download feature can be implemented by the customer:
+
+[,java]
+----
+    void addListener(AmpDownloaderListener var1);
+
+    void removeListener(AmpDownloaderListener var1);
+
+    void cancelToggle();
+
+    void pauseAllDownloads();
+
+    void resumeAllDownloads();
+
+    void cancelAllDownloads(boolean var1);
+
+    void cancelDownload(Uri var1, boolean var2);
+
+    void removeAllDownloads();
+
+    boolean isVideoDownloaded(Uri var1);
+
+    HashMap<Uri, Download> getDownloadList(int... var1);
+----
+
+== Play downloaded streams
+
+After a video has been downloaded, you need to notify the player about the existence of local content available, this is done by simply calling the method below, and pass the instance of the `AmpDownloadManager` you are using as input parameter:
+
+----
+    videoPlayerview.setDownloadRequestProvider(DownloadRequestProvider provider);
+----
+
+By definition, the method receives an object type `DownloadRequestProvider` but, our `AmpDownloadManager` implements the methods required to act as provider.
+
+After that, simply play the stream as you normally would do, and the player will make sure to use the downloaded assets.
+
+== Proguard
+
+If you need to set `minifyEnabled true`, then you should add the following rules, depending on the streaming format your app supports (HLS, MPEG-Dash or SmoothStreaming):
+
+----
+# When using HLS
+-dontnote com.akamai.amp.exoplayer2.source.hls.offline.HlsDownloader
+-keepclassmembers class com.akamai.amp.exoplayer2.source.hls.offline.HlsDownloader {
+  <init>(com.akamai.amp.exoplayer2.MediaItem, com.akamai.amp.exoplayer2.upstream.cache.CacheDataSource$Factory, java.util.concurrent.Executor);
+}
+-dontnote com.akamai.amp.exoplayer2.source.hls.HlsMediaSource$Factory
+-keepclasseswithmembers class com.akamai.amp.exoplayer2.source.hls.HlsMediaSource$Factory {
+  <init>(com.akamai.amp.exoplayer2.upstream.DataSource$Factory);
+}
+
+# When using MPEG-Dash
+-dontnote com.akamai.amp.exoplayer2.source.dash.offline.DashDownloader
+-keepclassmembers class com.akamai.amp.exoplayer2.source.dash.offline.DashDownloader {
+  <init>(com.akamai.amp.exoplayer2.MediaItem, com.akamai.amp.exoplayer2.upstream.cache.CacheDataSource$Factory, java.util.concurrent.Executor);
+}
+-dontnote com.akamai.amp.exoplayer2.source.dash.DashMediaSource$Factory
+-keepclasseswithmembers class com.akamai.amp.exoplayer2.source.dash.DashMediaSource$Factory {
+  <init>(com.akamai.amp.exoplayer2.upstream.DataSource$Factory);
+}
+
+# When using SmoothStreaming
+-dontnote com.akamai.amp.exoplayer2.source.smoothstreaming.offline.SsDownloader
+-keepclassmembers class com.akamai.amp.exoplayer2.source.smoothstreaming.offline.SsDownloader {
+  <init>(com.akamai.amp.exoplayer2.MediaItem, com.akamai.amp.exoplayer2.upstream.cache.CacheDataSource$Factory, java.util.concurrent.Executor);
+}
+-dontnote com.akamai.amp.exoplayer2.source.smoothstreaming.SsMediaSource$Factory
+-keepclasseswithmembers class com.akamai.amp.exoplayer2.source.smoothstreaming.SsMediaSource$Factory {
+  <init>(com.akamai.amp.exoplayer2.upstream.DataSource$Factory);
+}
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

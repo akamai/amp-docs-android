@@ -1,0 +1,31 @@
+---
+layout: techdocs-devices
+title: AMP custom analytics plugins
+categories: [analytics]
+---
+
+The following document guides you through the basic steps of AMP custom analytics plugin.
+
+## Description
+
+In this document we explain how to create a custom analytics plugin.
+
+## Process
+
+We use `Adobe Heartbeat` just to exemplify how we integrate any analytics provider (all the other integrations look basically the same).
+
+You won’t be integrating any plugin, you will be creating your own. To accomplish that, you just need to create a class that extends `AnalyticsTracker<X>,` where X is a value class that extends `AnalyticsTrackerData`, for example, `MyAnalyticsTracker` and `MyAnalyticsData` respectively.
+
+You can manage `MyAnalyticsTracker`’s lifecycle with the `init()` and `cleanup()` mandatory methods in the `MyAnalyticsTracker`. Inside this class, you would also `@Override` these and many other similar methods:
+
+* `trackPlayEvent()`
+* `trackPauseEvent()`
+* `trackFinish()`
+* `trackError(String errorMsg)`
+* ...
+
+Inside the `trackPlayEvent()`, you would send the beacon to your backend (or using your custom mobile SDK), signaling that a _play_ has been registered.
+
+***
+
+If you have further questions or comments, reach out to us via <amp-sdk-support@akamai.com>

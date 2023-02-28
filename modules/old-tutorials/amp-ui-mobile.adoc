@@ -1,0 +1,79 @@
+= Mobile UI Integration
+:categories: ["ui"]
+:page-layout: techdocs-devices
+
+The following document describes how to implement Mobile UI Integration module from AMP Android SDK.
+
+== Deprecation notice
+
+This UI integration is currently outdated, to implement the player UI using the current approach, follow the UI Generic module guide, https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-ui-mobile-generic/[Mobile Generic UI Integration]
+
+== Introduction
+
+Before you continue be aware that AMP Android SDK can be integrated with different approaches:
+
+* AMP Basic Integration: AMP Android SDK has a standard API to implement all features. https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[AMP Basic Integration]. It requires more code development and gives more freedom. For example: it allows UI control customization, rebuild the UI Controls completely, integration of Server Side Ad Insertion like DAI and Client Side Ad Insertion like IMA at the same time.
+* AMP Player Wrapper Integration: AMP Android SDK has a Wrapper module called https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player/[AmpPlayer module]. This module simplifies the implementation even further. It is intended for customers who want a quick integration, with almost no customizations and a default UI. The AMP Player module unifies and coordinates all the different plugins we provide: playback, UI (scrubbar, buttons and events), Close Captions, ads and analytics. With this new module we are saving  the developer most integration effort, by providing a single drag and drop plugin that will provide production quality results in a matter of a few minutes.
+
+Reach out to us at link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com] with any questions or concerns.
+
+== Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+
+== Getting started
+
+For reference, check the AMPSampleUI Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
+
+1) From *modules/AmpUIMobile/libs*, add the *amp-ui-mobile.aar* to your project's */libs* folder.
+
+2) Add the following line to the runnable module's build.gradle file:
+
+[,java]
+----
+	compile(name:'amp-ui-mobile', ext:'aar')
+----
+
+3) In the Activity where playback is handled, import the following Java packages:
+
+[,java]
+----
+    import com.akamai.uimobile.listeners.IMediaPlayerControllerListener;
+    import com.akamai.uimobile.media.MediaPlayerController;
+----
+
+4) Add an attribute type MediaController as follows:
+
+[,java]
+----
+	private MediaPlayerController mMediaPlayerController;
+----
+
+5) Add a UI Widget type MediaPlayerController to the activity's xml layout as follows:
+
+[,xml]
+----
+    <com.akamai.uimobile.media.MediaPlayerController
+        android:id="@+id/playerControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+----
+
+6) Create the instance of the Controller based on the xml as follows:
+
+[,java]
+----
+    mMediaPlayerController = (MediaPlayerController) findViewById(R.id.playerControls);
+----
+
+7) On the onResourceReady() callback, set the VideoPlayerView object to the MediaPlayerController as follows:
+
+[,java]
+----
+    mMediaPlayerController.setVideoPlayerView(mVideoPlayerContainer);
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

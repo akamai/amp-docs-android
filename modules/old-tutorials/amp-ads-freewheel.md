@@ -1,0 +1,180 @@
+---
+layout: techdocs-devices
+title: Freewheel
+categories: [ads]
+---
+
+The following document describes how to implement Freewheel module from AMP Android SDK.
+
+
+## Introduction
+
+Before you continue be aware that AMP Android SDK can be integrated with different approaches:
+
+* AMP Basic Integration: AMP Android SDK has a standard API to implement all features. [AMP Basic Integration](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/). It requires more code development and gives more freedom. For example: it allows UI control customization, rebuild the UI Controls completely, integration of Server Side Ad Insertion like DAI and Client Side Ad Insertion like IMA at the same time.
+* AMP Player Wrapper Integration: AMP Android SDK has a Wrapper module called [AmpPlayer module](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player/). This module simplifies the implementation even further. It is intended for customers who want a quick integration, with almost no customizations and a default UI. The AMP Player module unifies and coordinates all the different plugins we provide: playback, UI (scrubbar, buttons and events), Close Captions, ads and analytics. With this new module we are saving  the developer most integration effort, by providing a single drag and drop plugin that will provide production quality results in a matter of a few minutes.
+
+Reach out to us at <amp-sdk-support@akamai.com> with any questions or concerns.
+
+
+## Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): [Basic Integration](https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/)
+
+## Getting started
+
+For reference, check the `AMPAdsFreewheelSample` Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
+
+1) From **modules/AdsFreewheel/libs**, copy the **amp-ads-freewheel.jar** and **FWAdManager.aar** to your project's **/libs** folder.
+
+2) import the following Java packages:
+
+```java
+import com.akamai.amp.ads.AdsCount;
+import com.akamai.amp.ads.Freewheel.AdsInfo;
+import com.akamai.amp.ads.IAdsComponentListener;
+import com.akamai.amp.ads.freewheel.AdSlot;
+import com.akamai.amp.ads.freewheel.AmpFreewheelManager;
+import com.akamai.amp.ads.freewheel.Freewheel;
+```
+
+3) Add an object of the `AmpFreewheelManager` type in your Activity's members:
+
+```java
+    private AmpFreewheelManager freewheelManager;
+```
+
+4) Initialize and configure that object, before calling the prepare action of the player as follows:
+
+```java
+    //It initializes the manager with the network ID, Ads URL, site section ID, video Asset ID and profile values.
+    freewheelManager = Freewheel.create(this, 
+                FW_NETWORK_ID, 
+                FW_ADS_URL,
+                FW_SITE_SECTION_ID, 
+                FW_VIDEO_ASSET_ID, 
+                FW_PROFILE);
+        /*This method filters the logs fired based on a level of importance, you can select either VERBOSE, DEBUG, INFO, WARN, ERROR or ASSERT. It is set to VERBOSE by default.   */     
+        freewheelManager.setExternalLogLevel(Logger.WARN);
+
+        // It sets an implementation of the IAdsComponentListener interface to capture ad related events
+        freewheelManager.addEventsListener(IAdsComponentListener);
+
+        // It sets the reference of the VideoPlayerContainer 
+        freewheelManager.setVideoPlayerContainer(videoPlayerContainer);
+```
+
+5) Set the `VideoPlayerView` object to the `AmpFreewheelManager` object when the `VideoPlayerView` is ready to use, for example when the `onResourceReady(MediaResource resource)` callback is triggered, as follows:
+
+```java
+    @Override
+    public void onResourceReady(MediaResource resource) {
+          .
+          .
+          freewheelManager.setVideoPlayerView(VideoPlayerView);
+          .
+          .
+    }
+```
+
+6) For each event in the Activity's life cycle there is an equivalent in the module, make sure each method is call on the respective event to implement automatic pause and recovery of the Ads in case the App implementing the Ads loses its foreground status:
+
+```java
+      @Override
+    protected void onResume(){
+        freewheelManager.onResume();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        freewheelManager.onPause();
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        freewheelManager.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        freewheelManager.onDestroy();
+    }
+
+    @Override
+    protected void onStart() {
+        Log.i(TAG,"onStart");
+        super.onStart();
+        freewheelManager.onStart();
+    }
+
+    @Override
+    protected void onRestart() {
+        Log.i(TAG,"onRestart");
+        super.onRestart();
+        freewheelManager.onRestart();
+    }
+```
+
+***
+
+## Load External Ad Slots
+
+You can load ad slots manually and decide where in the video timeline must be shown:
+
+```java
+    private void createAdSlots() {
+        freewheelManager.addTemporalSlots(
+                new AdSlot("pre1",  AmpFreewheelManager.PREROLL,  0),
+                new AdSlot("post1", AmpFreewheelManager.POSTROLL, 60),
+                new AdSlot("mid1",  AmpFreewheelManager.MIDROLL,  30),
+                new AdSlot("mid2",  AmpFreewheelManager.MIDROLL,  900),
+                new AdSlot("mid3",  AmpFreewheelManager.MIDROLL,  1800));
+    }
+
+```
+
+## Enable Snapback functionality 
+
+If you want to make sure midrolls are not skipped by the user when scrubbing, make sure to notify the manager whenever a seek action has completed, as follows:
+
+``` java
+         case IPlayerEventsListener.PLAYER_EXTENDED_EVENT_SEEKING_SUCCEDEED:
+             // this line is to make mid rolls play if the user seeks after a cue point
+            freewheelManager.getUIEventsListener().onScrubbingEnded();
+```
+
+***
+
+## IAdsComponentListener
+
+As mentioned above, you can create and register your own `com.akamai.amp.ads.IAdsComponentListener<FreewheelAdsInfo>`, in case you need to be notified of the following events:
+
+```java
+	void onListenerRegistered();
+	void onAdsInitialized();
+	void onAdsLoaded(AdsCount adsCount);
+	void onAdsStarted(FreewheelAdsInfo ad);
+	void onAdsEnded();
+	void onAllPostrollsEnded();
+	void onAdsPaused();
+	void onAdsResumed();
+	void onAdBreakStarted();
+	void onAdBreakEnded();
+	void onAdsTrackProgress(int progress); //0 is first quartile, 1 is midpoint, 2 third quartile and 3 is completed
+	void onAdsPlayheadUpdate(int seconds);
+	void onAdsError(String reason);
+	void onPauseContentRequested();
+	void onResumeContentRequested();
+	void onAdsTapped();
+	void onAdEvent();
+```
+
+There might be certain situations where Freewheel does not report some of the above; therefore, AMP won't be able to report them in turn.
+
+***
+
+If you have further questions or comments, reach out to us via <amp-sdk-support@akamai.com>

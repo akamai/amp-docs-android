@@ -1,0 +1,192 @@
+= Chromecast
+:categories: ["others"]
+:page-layout: techdocs-devices
+
+The following document describes how to implement the Chromecast module with AMP Android SDK.
+
+== Getting started
+
+The Chromecast module is a reference https://developers.google.com/cast/docs/android_sender/[Android Sender] that is pre-integrated with AMP and it uses https://developers.google.com/cast/[Google&#39;s Cast SDK]. We will cover AMP's `AmpChromecastSample`, to demonstrate how to cast videos from a sample app.
+
+== Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+
+The implementation is not dependent of the integration of either the &quot;classic UI&quot; *amp-ui-mobile.jar* or the &quot;new UI&quot; *amp-ui-mobile-generic.jar*. It can be implemented without player controls or with your own. The sample showcases how to implement chromecast with a custom UI for the player.  You can download a working sample from our release package. It can be found on the following path: *modules/AmpChromecast/samples/ChromecastSample*
+
+== Introduction
+
+The chromecast implementation includes helpers to simplify the inclusion of the mandatory &quot;Cast UX Widgets&quot;:
+
+* Introductory Overlay
+* Cast Button
+* Mini Controller
+* Expanded Controller
+* Notification
+* Lock Screen
+
+Get to know more about this app by following the https://codelabs.developers.google.com/codelabs/cast-videos-android/#0/[&quot;Cast-enable an Android app&quot; tutorial].
+
+For reference, check https://developers.google.com/cast/docs/design_checklist/[Google&#39;s Cast Design Checklist]. Simpler Chromecast integrations might opt to just use the `Cast Button`, although this goes directly against Google&#39;s recommendations.
+
+AMP simplified implementation wraps up all casting related implementation on a Manager called *AmpCastManager*. This object pretty much contains all the public API for all casting actions available.
+
+== How to intialize the Manager
+
+Before everything, make sure the proper dependencies and libraries are included to your project.
+
+Add the following to your build.gradle file:
+
+[,groovy]
+----
+    implementation 'androidx.mediarouter:mediarouter:1.0.0'
+    implementation 'com.google.android.gms:play-services-cast-framework:16.2.0'
+----
+
+And make sure your project contains the *amp-ott-cast.jar* and *amp-core.jar* packages from our release package.
+
+All CMAF related functionality is accessed through out the same `AmpCastManager`. The difference on each scenario is how you create its instance. This is the simplest way to initialize the manager:
+
+[,groovy]
+----
+    ampCastManager = new AmpCAF.Builder(Context).build();
+----
+
+Depending on the preconditions selected from the AmpCAF builder, the manager will provide more and more options, such as queue management.
+
+== How to Add the Cast Button
+
+One of the first and most basic options required to support casting is implementing the Cast Button. The `AmpCastManager` provides a method that creates the option and adds it to a provided Menu object, like this:
+
+[,groovy]
+----
+    ampCastManager.initCastButton(Context, Menu, MenuItemId);
+----
+
+and the Menu Item must set the Provider Class as follows:
+
+[,xml]
+----
+<item
+        android:id="@+id/media_route_menu_item"
+        app:actionProviderClass="androidx.mediarouter.app.MediaRouteActionProvider" />
+----
+
+== Introductory Layout
+
+The introductory layout is a pop up view that centers the focus of the user towards the Cast button, to emphasize that the Application has casting capabilities. This message is shown only the first time the App is opened.
+
+To set up an introductory message to your casting implementation, use the following:
+
+[,groovy]
+----
+    ampCastManager.showIntroductoryOverlay(Context, MessageString, ColorResLayout);
+----
+
+== Listeners and Callbacks
+
+The implementation allows you to instantiate different listeners and callbacks to receive casting related events. `SessionManagerListener` returns cast session related events, `RemoteMediaClient.Callback` returns events related to the remote client instance running whenever a receiver device is connected to the sender, and `CastStateListener` provides more general casting event changes like, whenever a video is ready to start casting.
+
+To implement either one of those, simply call the respective method from the builder, passing your instance of the listener or callback as input parameter:
+
+[,groovy]
+----
+ ampCastManager = new AmpCAF.Builder(this)
+                .withSessionManagerListener(sessionListener)
+                .withCastStateListener(mCastStateListener)
+                .withRemoteMediaClientCallback(mRemoteMediaClientCallback)
+                .build();
+----
+
+== Implementing the Queue
+
+The queue is one of the main features our implementation offers. The `AmpCastManager` provides a `AmpQueueManager` which contains all the queueing related API such as add to queue, remove, truncate, and start casting a video.
+
+To obtain said Manager, simply call the following get method:
+
+[,groovy]
+----
+    ampCastManager.getQueueManager();
+----
+
+However, it is very important to make sure you notify the AmpCAF builder that the current instance of the `AmpCastManager` needs to contain queueing capabilities, by default the manager is not initialized that way, so make sure to call the following method if necessary:
+
+[,groovy]
+----
+ ampCastManager = new AmpCAF.Builder(this)
+                .withQueue(true)
+                .build();
+----
+
+== CastOptionsProvider
+
+The `CastOptionsProvider` defines various details for the casting session. It defines how the Notifications will be displayed, which activity is the target for said notifications as well as the main controls for the receiver.
+
+Amp by default already offers a default implementation of this provider, all you need to do is first:
+
+Notify the first time the `AmpCastManager ` is implemented the TargetActivity for the notification, as follows:
+
+[,groovy]
+----
+        ampCastManager = new AmpCAF.Builder(this)
+                .withTargetActivity(ExpandedControlsActivity.class)
+                .build();
+----
+
+Now, about the target activity, as it was mentioned before, the TargetActivity is the view which controls the receiver, by default Google already provides one out of the box, however, the implementation is opened to the integrator if they want to create their own version of the controls. As long as the Custom Activity extends from the  `ExpandedControllerActivity` provided by Google, Amp's implementation will use it just fine. To get an https://developers.google.com/android/reference/com/google/android/gms/cast/framework/media/widget/ExpandedControllerActivity/[expanded controller] (an out-of-the-box remote player, used when casting media to a cast device)
+
+Create and empty class which extends from `com.akamai.amp.cast.CastOptionsProvider`, and link it in your android manifest by adding the following metadata inside the application tag:
+
+[,xml]
+----
+<meta-data
+                android:name="com.google.android.gms.cast.framework.OPTIONS_PROVIDER_CLASS_NAME"
+                android:value="com.akamai.amp.cast.CastOptionsProvider"/>
+----
+
+== Passing the Receiver ID
+
+A fundamental part to the implementation is to notify the sender which receiver will be handling the playback on the other end. Every CMAF receiver has an ID, we need to provide said ID to the sender to know where to connect when the casting session is started.
+
+To provide the receiver ID, pass it to the AmpCAF builder, the very first time the `AmpCastManager` is instantiated, as follows
+
+[,groovy]
+----
+ ampCastManager = new AmpCAF.Builder(this)
+                .withAppId(StringId)
+                .build();
+----
+
+== Casting Manager sync up with the player
+
+The interaction between the receiver and the local player (the player in the mobile device acting as sender) is helped by our implementation, however we only provide the methods to implemente it, it is the integrator who's resposible to act accordinly.
+
+The most important thing to take into account in this scenario, is the  `AmpCastManager` needs a reference to the  `VideoPlayerContainer ` to capture events and control the state of the playback. To provide the referece, again, make use of the AmpCAF builder as follows:
+
+[,groovy]
+----
+        ampCastManager = new AmpCAF.Builder(this)
+               .withVideoPlayerContainer(videoPlayerContainer)
+               .build();
+----
+
+IMPORTANT: In every view where the casting feature is available and therefore, an instance of the  `AmpCastManager` is created, make sure to call the respective methods to notify the sdk changes in the lifecycle, specifically the `onResume` and  `onPause` actions. This is necessary to better handling of listeners, and the implementation in general which behave differently depending on the current lifecycle state.
+
+[,groovy]
+----
+    @Override
+    protected void onResume() {
+        ampCastManager.onForeground();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        ampCastManager.onBackground();
+    }
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

@@ -1,0 +1,139 @@
+= AMP Player Error handling
+:categories: ["core"]
+:page-layout: techdocs-devices
+:position: 3
+
+The following document describes how identify the errors fired by the player.
+
+== Prerequisite
+
+The rest of this guide assumes you have successfully integrated AMP's Core (you are able to play back a video): https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-basic-integration/[Basic Integration]
+
+== Getting started
+
+Whenever there is an error, the SDK will fire the `PLAYER_EVENT_TYPE_ERROR` (more on https://developer.akamai.com/tools/AdaptiveMediaPlayer/docs/android/amp-player-events/[events handling]).
+
+It's up to the app how to handle the errors. To ease that handling, the VideoPlayerView class provides these options:
+
+. to get an Exception, if one occurred
+. to get the HTTP error code, if one occurred
+. to get an AMP defined constant of the error that occurred
+
+The following assumes you have correctly registered an `IPlayerEventsListener`, that would get the `PLAYER_EVENT_TYPE_ERROR`.
+
+To get a human readable name of the error (for logs and others), you can use the `com.akamai.media.PlayerEvents.getName(int eventID)` method.
+
+== Getting an exception
+
+This is accomplished via
+
+[,java]
+----
+videoPlayerView.getLastException()
+----
+
+Most of the times, the returning value will be a subclass of `com.akamai.exoplayer2.ExoPlaybackException`.
+
+== Getting an HTTP error code
+
+This is accomplished via
+
+[,java]
+----
+videoPlayerView.getLastHttpErrorCode().
+----
+
+In case the error was not HTTP related, this method returns a default int value of -1.
+
+== Getting the AMP defined constant of the error
+
+You can find the list of constants at the bottom of the guide. The validation is accomplished via
+
+[,java]
+----
+ videoPlayerView.getLastErrorCode().
+----
+
+To get a human readable description of it (for logs and others), you can use the  `com.akamai.media.ErrorEvents.getDescription(int lastErrorCode)` method.
+
+Here is a code snippet that shows the use of all the methods described above:
+
+[,java]
+----
+@Override
+public boolean onPlayerEvent(int eventID) {
+   Log.e("EventsTest", PlayerEvents.getName(eventID));
+   boolean isError = IPlayerEventsListener.PLAYER_EVENT_TYPE_ERROR == eventID;
+   if (isError)
+   {
+      int lastErrorCode = videoPlayerView.getLastErrorCode();
+      int lastHttpErrorCode = videoPlayerView.getLastHttpErrorCode();
+      Exception lastException = videoPlayerView.getLastException();
+     //Note lastException could be null
+      String errorName = ErrorEvents.getDescription(lastErrorCode);
+      String errorMessage = "PLAYER_EVENT_TYPE_ERROR: " + errorName + " (" + lastHttpErrorCode + ") " + lastException;
+      Log.e("EventsTest", errorMessage);
+   }
+   return false;
+}
+----
+
+== AMP internal error codes
+
+The AMP defined constant errors are the following:
+
+[,java]
+----
+//No error
+public static final int ERROR_SUCCESS = 0;
+
+////Network access is not available
+public static final int ERROR_NETWORK_UNAVAILABLE = 1;
+
+//Resource (stream URL) doesn't exist
+public static final int ERROR_NETWORK_RESOURCE_DONT_EXIST = 2;
+
+//Access not allowed to the provided stream URL
+public static final int ERROR_NETWORK_SECURITY_ISSUE = 3;
+
+//The provided stream doesn't have a known format
+public static final int ERROR_FORMAT_UNKNOWN = 4;
+
+//There was an issue while allocating resources for playback
+public static final int ERROR_RESOURCES_ISSUE = 5;
+
+//The provided stream contains format errors
+public static final int ERROR_TS_SEGMENT_INVALID = 6;
+
+/** When there is an error triggered from Exoplayer directly,
+it would be reported with the following Error code + the Exoplayer error code:
+Last Error code, Exoplayer is reporting an error directly */
+public static final int EXO2_ERROR_BASE = 7;
+----
+
+Exoplayer error codes:
+
+[,java]
+----
+
+/**
+ * The error occurred loading data from a {@link MediaSource}.
+ * <p>
+ * Call {@link #getSourceException()} to retrieve the underlying cause.
+ */
+public static final int TYPE_SOURCE = 0;
+/**
+ * The error occurred in a {@link Renderer}.
+ * <p>
+ * Call {@link #getRendererException()} to retrieve the underlying cause.
+ */
+public static final int TYPE_RENDERER = 1;
+/**
+ * The error was an unexpected {@link RuntimeException}.
+ * <p>
+ * Call {@link #getUnexpectedException()} to retrieve the underlying cause.
+ */
+public static final int TYPE_UNEXPECTED = 2;
+----
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]

@@ -1,0 +1,155 @@
+---
+layout: techdocs-devices
+title: Migration Guide
+categories: []
+---
+
+The following document describes how to migrate to AMP Android SDK 6.119
+
+&nbsp;
+
+## Introduction
+
+The Android AMP SDK has introduced some API breaking changes. The most important difference is that all classes are now under the `com.akamai.amp` package. Most plugin classes have been renamed, adding the `Amp` prefix to their name.
+
+The best approach to migrate to the latest version is:
+
+1. Replace the old .jars with the ones from this version
+2. Remove old imports
+3. Add the imports Android Studio is suggesting
+4. If there are still some compilation errors, you might need to change something from the table in the [Summary of changes](#summary-of-changes) section
+
+In case of doublt, you can refer to the samples included in the release package. If there are further questions, you can also reach out to us via <amp-sdk-support@akamai.com>
+
+&nbsp;
+
+## Summary of changes
+
+**Table 1**
+
+| **type**|   | **before**                          |   |**after**                               |
+|---------|---|-------------------------------------|---|----------------------------------------|
+| package |   | com.akamai.*                        |   | com.akamai.amp.*                       |
+| package |   | com.akamai.freewheel                |   | com.akamai.amp.ads.freewheel           |
+| package |   | com.akamai.ima                      |   | com.akamai.amp.ads.ima                 |
+| package |   | com.akamai.amp_yospace              |   | com.akamai.amp.ads.yospace             |
+| package |   | com.akamai.bidder.aps               |   | com.akamai.amp.bidder.aps              |
+| package |   | com.akamai.captioning               |   | com.akamai.amp.captioning              |
+| package |   | com.akamai.cast                     |   | com.akamai.amp.cast                    |
+| package |   | com.akamai.chromecast               |   | com.akamai.amp.chromecast              |
+| package |   | com.akamai.id3tags                  |   | com.akamai.amp.id3tags                 |
+| package |   | com.akamai.media.acceleration       |   | com.akamai.amp.media.acceleration      |
+| package |   | com.akamai.amp_360                  |   | com.akamai.amp.rendering360            |
+| package |   | com.akamai.uitv                     |   | com.akamai.amp.ui.tv                   |
+| package |   | com.akamai.uimobile                 |   | com.akamai.amp.uimobile                |
+| jar     |   | amp-yospace                         |   | amp-ads-yospace                        |
+| class   |   | AdobeHeartbeatAnalyticsTracker      |   | AmpAdobeHeartbeatAnalyticsTracker      |
+| class   |   | AkamaiMediaAcceleration             |   | AmpAkamaiMediaAcceleration             |
+| class   |   | AMP360Component                     |   | Amp360Component                        |
+| class   |   | ApsBidder                           |   | AmpApsBidder                           |
+| class   |   | CaptionComponent                    |   | AmpCaptionComponent                    |
+| class   |   | ChromecastAmp                       |   | AmpChromecast                          |
+| class   |   | ComscoreStreamsenseAnalyticsTracker |   | AmpComscoreStreamsenseAnalyticsTracker |
+| class   |   | FWAdComponent                       |   | AmpFreewheelManager                    |
+| class   |   | GoogleAnalyticsTracker              |   | AmpGoogleAnalyticsTracker              |
+| class   |   | IMAManager                          |   | AmpDAIManager                          |
+| class   |   | IMAManager                          |   | AmpIMAManager                          |
+| class   |   | MediaAnalyticsTracker               |   | AmpAkamaiMediaAnalyticsTracker         |
+| class   |   | NielsenDcrAnalyticsTracker          |   | AmpNielsenDcrAnalyticsTracker          |
+| class   |   | YospaceComponent                    |   | AmpYospaceManager                      |
+
+For the ad providing components, further explanation is shown in the following sections.
+
+******
+
+&nbsp;
+
+### IMA
+
+The IMAManager has been split into two: **AmpIMAManager** is now used to implement client side ads and **AmpDAIManager** implements server side ads.
+
+- `imaManager.setAdsOrigin(CLIENT_SIDE/SERVER_SIDE)` has been removed from the API. This differentiation is now made through the instantiation methods.
+- Instead of using the `new` operator to create instances, it is now required to use the following builder methods:
+
+    * To create the `AmpIMAManager`:
+        ```java
+        IMA.create(Context context);
+        ```
+
+    * To create the `AmpDAIManager`:
+        ```java
+        DAI.create(Context context);
+        DAI.create(Context context, String fallbackURL);
+        ```
+
+-  The `disableAdsCountdown` flag is no longer an input parameter of the class constructor (or the new builder methods). Now, this flag can be set using the following methods:
+    ```java
+    ampIMAManager.enableAdsCountDown();
+    ampIMAManager.disableAdsCountDown();
+    ```
+
+ The ads countdown is enabled by default.
+
+- The `AmpIMAManager` does not implement the `IAutoRecoveryCallback` which is used to get from other components like `Yospace` when an autorecovery event has occurred. Now, there is a new method who provides said callback.
+
+    * **Old implementation:**
+        ```java
+        yospace.setAutoRecoveryTriggeredCallback(imaManager);
+        ```
+
+    * **New implementation:**
+        ```java
+        yospace.setAutoRecoveryTriggeredCallback(imaManager.getAutoRecoveryCallback());
+        ```
+
+- The method `getAdsManager()` is now called `getManager()`, and it returns an object type `BaseManager`, which it can be casted to a `StreamManager` (for DAI) or an `AdManager` (for Client side Ads).
+
+******
+
+&nbsp;
+
+### Yospace
+
+- The YospaceComponent has been renamed, it is now called **AmpYospaceManager**.
+- Instead of using the `new` operator to create instances, it is now required to use the following builder methods:
+`Yospace.create(Activity activity, String url);`
+- The **AmpYospaceManager** does not implement the **IConnectionSwitchCallback** which is used to monitor when the playback has been interrupted due to connectivity problems. Now, there is a new method who provides said callback.
+
+    * **Old implementation:**
+        ```java
+        mVideoPlayerContainer.enableAutoRecovery(yospaceComponent);
+        ```
+
+    * **New implemetentation:**
+        ```java
+        mVideoPlayerContainer.enableAutoRecovery(yospace.getConnectionSwitchCallback());
+        ```
+
+******
+
+&nbsp;
+
+### Freewheel
+
+- The FWAdComponent has been renamed, it is now called **AmpFreewheelManager**.
+- Instead of using the `new` operator to create instances, it is now required to use the following builder methods:
+
+    ```java
+    Freewheel.create(Context context, int networkId, String adsURL, String siteSectionId, String videoAssetId, String profile);
+    Freewheel.create(Context context);
+    ```
+
+- The Manager is no longer implementing the UIEventListener which is used to monitor events from the UI controller. Now, there is a new method who provides said listener.
+  ```java
+  ampFreewheelManager.getUIEventsListener();
+  ```
+- The Manager in itself it no longer implementing the BidderCallback which it is used to capture Ad header bidding. Now, there is a new method who provides said callback.
+  ```java
+  ampFreewheelManager.getBidderCallback();
+  ```
+
+******
+
+&nbsp;
+
+If you have further questions or comments, reach out to us via <amp-sdk-support@akamai.com>
