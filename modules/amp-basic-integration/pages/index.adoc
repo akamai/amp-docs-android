@@ -1,0 +1,161 @@
+include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
+
+= AMP Basic Integration
+:categories: ["core"]
+:page-layout: techdocs-devices
+:position: 1
+
+The following document guides you through the steps of a basic integration of AMP Android SDK into your app. By the end of it, you will be able to play back an online video stream.
+
+== Introduction
+
+You can integrate AMP into your app in two ways:
+
+1. link:../../amp-player/index.html[*AmpPlayer module*]: a "plug-and-play" wrapper to quickly get playback, UI, Close Captions, ads, and analytics "out of the box". This module implies fewer customizations and uses a default UI.
+2. *AMP Basic Integration*: allows you to implement more complex use cases by leveraging AMP's API. This integration requires more code development and provides more freedom. _This document will delve into this option._
+
+Reach out to us at link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com] with any questions or concerns.
+
+== Description
+
+The AMP Android SDK is a set of tools that allows app developers to implement video playback capabilities natively for any Android-based device (mobile phone, tablet, or TV).
+
+It provides an easy integration process and offers several advanced functionalities, such as Video and Audio playback for PMD, VOD, and Live videos on different formats like HLS, DASH, SmoothStreaming, MP4, MP3, and others.
+
+The core functionality of the player is multimedia playback. There is also a set of modules that include Captioning, UI Controls, and several Ads and Analytics providers.
+
+This guide will help you integrate AMP on any Android application. The result will be a video playing on your sample app. It won't have any UI controls, as that is a separate module.
+
+== Prerequisites
+
+1. A current Android Studio environment that can run a "Hello World" sample on a device or emulator.
+2. An AMP Android SDK license (known as an "API key"), that you received from link:mailto:amp-sdk-support@akamai.com[Akamai].
+
+== Integration
+
+There are two main AMP distributions:
+
+* https://mdtp-a.akamaihd.net/amp-android-sdk[Standard]: playback, captions, and UI.
+* https://mdtp-a.akamaihd.net/amp-android-sdk/premier[Premier]: the previous plus ads and analytics.
+
+Download the latest .zip package and extract the contents. There will be several Android Studio samples. You can use your target plugin sample as base.
+
+. On the `/AmpCore/libs` folder, you can find the `amp-core.jar`. Copy it into the `libs` folder of your project.
+. Add the `com.akamai.amp.media.VideoPlayerContainer` object in your ``Activity``'s layout (you can modify attributes like `width`, `height`, ``padding``s, and ``margin``s):
+
+[,xml]
+----
+<com.akamai.amp.media.VideoPlayerContainer
+    android:layout_width="match_parent"
+    android:id="@+id/playerViewCtrl"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:layout_gravity="center" />
+----
+
+. In your `Activity` 's `onCreate()` method, get a reference to the `com.akamai.amp.media.VideoPlayerContainer` object. Register the callback for playback and prepare the URL to be played:
++
+[,java]
+----
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    mVideoPlayerContainer = (VideoPlayerContainer) findViewById(R.id.playerViewCtrl);
+    mVideoPlayerContainer.addVideoPlayerContainerCallback(this);
+    mVideoPlayerContainer.prepareResource(VIDEO_URL);
+}
+----
++
+With this callback, the SDK converts the URL of a stream into a `com.akamai.amp.media.elements.MediaResource`. Optionally, the `enableAutoRecovery()` method resets the video playback in cases where the Internet network state is down and up. Make sure to call it before `prepareResouce()`:
++
+[,java]
+----
+ mVideoPlayerContainer.enableAutoRecovery();
+ mVideoPlayerContainer.prepareResource(VIDEO_URL);
+----
+
+. The `Activity` implements the `com.akamai.amp.media.VideoPlayerContainer.VideoPlayerContainerCallback` in this example:
++
+[,java]
+----
+public class MainActivity extends Activity implements VideoPlayerContainer.VideoPlayerContainerCallback {
+----
+
+. The callback is composed of three methods:
+[,java]
+----
+@Override
+public void onResourceReady(MediaResource mediaResource) {
+    ...
+}
+
+@Override
+public void onVideoPlayerCreated() {
+    ...
+}
+
+@Override
+public void onResourceError() {
+    ...
+}
+----
+
+On the `onResourceReady()` method, use the `play(MediaResource resource)` method of the `VideoPlayerView` object to start playing a stream. For audio-only streams, use `playAudio(MediaResource resource)`.
+
+
+== MediaResource object
+AMP takes the stream's URL from prepareResource(VIDEO_URL) and returns a MediaResource on the VideoPlayerContainerCallback.
+The MediaResource represents the stream's metadata: URLs, titles and subtitles, captions, and poster image (if provided).
+This object is mutable so that you can set any of these attributes.
+[,java]
+----
+    @Override
+    public void onResourceReady(MediaResource mediaResource) {
+        resource = mediaResource;
+        mediaResource.setPoster("https://example.com/poster.jpg");
+
+        videoPlayerView = videoPlayerContainer.getVideoPlayer();
+        videoPlayerView.setLogEnabled(true);
+        videoPlayerView.play(mediaResource);
+    }
+----
+
+== Android lifecycle
+Be sure to notify AMP of at least these lifecycle events:
+[,java]
+----
+@Override
+public void onResume() {
+    if (videoPlayerView != null) {
+        videoPlayerView.onResume();
+    }
+    super.onResume();
+}
+
+@Override
+public void onPause() {
+    if (videoPlayerView != null) {
+        videoPlayerView.onPause();
+    }
+    super.onPause();
+}
+
+@Override
+protected void onDestroy() {
+    if (videoPlayerView != null) {
+        videoPlayerView.onDestroy();
+    }
+    super.onDestroy();
+}
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+
+:date: 14/3/2023
+:last-revision: 14/3/2023
+include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]

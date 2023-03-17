@@ -1,0 +1,145 @@
+include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
+
+= Google IMA/DAI Ads
+:categories: ["ads"]
+:page-layout: techdocs-devices
+
+The following document describes implementing the Google IMA module for AMP Android SDK.
+
+== Prerequisite
+
+This guide assumes you can play back a video stream, either with the link:../../amp-player/index.html[AmpPlayer module] or the link:../../amp-basic-integration/index.html[basic integration].
+
+== Getting started
+
+This guide follows the `AmpAdsGoogleImaSample` Android Studio project, found in our link:https://mdtp-a.akamaihd.net/amp-android-sdk/premier[release page]. To integrate the plugin into your App, you need to:
+
+1) Copy the `amp-ads-google-ima.jar` to your project's `/libs` folder.
+
+2) Add the following line in the runnable module's `build.gradle` file:
+
+[,java]
+----
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.19.4'
+----
+
+3) In the `Activity` where playback is handled, import the following Java packages:
+
+[,java]
+----
+import com.akamai.amp.ads.AdsCount;
+import com.akamai.amp.ads.AdsHelper;
+import com.akamai.amp.ads.IAdsComponentListener;
+import com.akamai.amp.ads.ima.AmpDAIManager;
+import com.akamai.amp.ads.ima.AmpIMAManager;
+import com.akamai.amp.ads.ima.GoogleAdsInfo;
+import com.akamai.amp.ads.ima.IMA;
+----
+
+4) There are two possible ``IMAAdsPlugin``s, for client and server-side ads, respectively:
+
+[,java]
+----
+    private AmpIMAManager clientSideAdsComponent;
+    private AmpDAIManager serverSideAdsComponent;
+----
+
+Depending on your business case, you could use one, the other, or both simultaneously. Whenever we mention an `adsComponent` in the following sections, apply the methods to both components if you use them.
+
+5) The initialization of those objects depends on their specific type:
+
+[,java]
+----
+        clientSideAdsComponent = IMA.create(this).buildClientSideManager();
+        serverSideAdsComponent = IMA.create(this).buildServerSideManager();
+----
+
+You should also configure them with their respective `setVideoPlayerContainer()` method.
+
+Optionally, you could also call `addEventsListener()` if needed. More details on the link:#IAdsComponentListener[section below].
+
+6) Configure the `AdsComponent` object(s) when the `onResourceReady(MediaResource resource)` callback is triggered as follows:
+
+[,java]
+----
+    @Override
+    public void onResourceReady(MediaResource resource) {
+        .
+        .
+        adsComponent.setVideoPlayerView(videoPlayerView);
+        adsComponent.attachToVideoPlayerContainer(videoPlayerContainer);
+        adsComponent.addEventsListener(this);
+        adsComponent.setAdsUrl(adsURL);
+        .
+        .
+    }
+----
+
+7) Add the following line to the `onDestroy()` method of the ``Activity``'s life cycle:
+
+[,java]
+----
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        adsComponent.onDestroy();
+    }
+----
+
+== Optional
+
+You can add the following implementation to the `onResume()` and `onPause()` methods of the ``Activity``'s life cycle to implement automatic pause and recovery of the Ads if the App loses its foreground status.
+
+[,java]
+----
+    @Override public void onPause() {
+        if (adsComponent!=null)
+            adsComponent.onPause();
+        super.onPause();
+    }
+
+    @Override public void onResume() {
+        if (adsComponent!=null)
+            adsComponent.onResume();
+        super.onResume();
+    }
+----
+
+== IAdsComponentListener
+
+Optionally, you can create and register your own `com.akamai.amp.ads.IAdsComponentListener<GoogleAdsInfo>` to be notified of the following events:
+
+[,java]
+----
+	void onListenerRegistered();
+	void onAdsInitialized();
+	void onAdRequest();
+	void onAdsLoaded(AdsCount adsCount);
+	void onAdsStarted(GoogleAdsInfo ad);
+	void onAdsEnded();
+	void onAllPostrollsEnded();
+	void onAdsPaused();
+	void onAdsResumed();
+	void onAdBreakStarted();
+	void onAdBreakEnded();
+	void onAdsTrackProgress(int progress); //First quartile (0), midpoint (1), third quartile (2) and completed (3)
+	void onAdsPlayheadUpdate(int seconds);
+	void onAdsError(String reason);
+	void onPauseContentRequested();
+	void onResumeContentRequested();
+	void onAdsTapped();
+	void onAdSkipped();
+	void onAdEvent();
+	void onAdBufferingStarted();
+	void onAdBufferingEnded();
+----
+
+There might be certain situations where IMA does not report some of the above; therefore, AMP won't be able to report them in turn.
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+
+:date: 14/3/2023
+:last-revision: 14/3/2023
+include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]

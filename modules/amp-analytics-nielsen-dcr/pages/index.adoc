@@ -1,0 +1,75 @@
+include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
+
+= Nielsen DCR Analytics
+:categories: ["analytics"]
+:page-layout: techdocs-devices
+
+The following document describes how to implement the Nielsen DCR module for AMP Android SDK.
+
+== Prerequisite
+
+. This guide assumes you can play back a video stream, either with the link:../../amp-player/index.html[AmpPlayer module] or the link:../../amp-basic-integration/index.html[basic integration].
+
+. It also assumes you have started conversations with a Nielsen representative for them to provide you with some custom metadata specific to your Android app that you will need in Point #5 of this guide (`appid`, `appversion`, `appname`, `sfcode` and others.).
+
+== Getting started
+
+This guide follows the `AmpAnalyticsNielsenDcrSample` Android Studio project, found in our link:https://mdtp-a.akamaihd.net/amp-android-sdk/premier[release page]. To integrate the plugin into your App, you need to:
+
+1) Add the following ``.jar``s to your project's `/libs` folder:
+
+* `appsdk.jar` (provided by Nielsen)
+* `amp-analytics-nielsen-dcr.jar` (provided by Akamai)
+
+2) In the `Activity` where playback is handled, import the following Java packages:
+
+[,java]
+----
+import com.akamai.amp.analytics.nielsenanalytics.AmpNielsenDcrAnalyticsTracker;
+import com.akamai.amp.analytics.nielsenanalytics.NielsenDcr;
+import com.akamai.amp.config.data.NielsenAdData;
+import com.akamai.amp.config.data.NielsenAppData;
+import com.akamai.amp.config.data.NielsenContentData;
+import com.akamai.amp.config.data.NielsenData;
+----
+
+3) Add an object of the `AmpNielsenDcrAnalyticsTracker` type in your ``Activity``'s attributes:
+
+[,java]
+----
+    private AmpNielsenDcrAnalyticsTracker nielsenAnalytics;
+----
+
+4) Initialize that object on the `onResourceReady()` method from the `VideoPlayerContainerCallback`:
+
+[,java]
+----
+    nielsenAnalytics = NielsenDcr.create(videoPlayerView, buildNielsenData());
+----
+
+5) The `buildNielsenData()` method, returns a `com.akamai.amp.config.data.NielsenData` object, which is composed of `NielsenAppData`, `NielsenContentData`, and `NielsenAdData`. Those objects receive a `java.util.Map` of two Strings: the beacon's name and its value. Each one of them also has the following methods that return a `Set<String>`:
+
+* `getAllMetadata()`: will return all the available beacon names.
+* `getMandatoryMetadata()`: will return all the mandatory available beacon names.
+
+For an example of how to fill this data, check the `PlayerActivity.java` file from the `AmpAnalyticsNielsenDcrSample`.
+
+6) If your App integrates ads, the ad component has to send the different events to AMP's Nielsen object. For example, using Google IMA Ads (`com.akamai.amp.ads.ima.AmpIMAManager`):
+[,java]
+----
+adsComponent.addEventsListener(nielsenAnalytics);
+----
+
+7) To get certified by Nielsen, it is mandatory to present to the customer an opt-out page. The `AmpNielsenDcrAnalyticsTracker` provides this custom URL with the method `getOptOutUrl()`. Refer to `PlayerActivity.java` and `OptOutActivity.java` for an implementation example.
+
+8) Now that everything has been integrated, contact a Nielsen representative to get the "Nielsen DCR Pre-Certification Checklist" PDF.
+
+Once you have validated that every item on the checklist is correct, send your App to Nielsen for certification.
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+
+:date: 15/3/2023
+:last-revision: 54/3/2023
+include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]

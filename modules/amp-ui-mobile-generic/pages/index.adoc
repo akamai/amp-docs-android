@@ -1,0 +1,122 @@
+include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
+
+= Mobile UI
+:categories: ["ui"]
+:page-layout: techdocs-devices
+
+The following document describes implementing the Mobile UI module for AMP Android SDK.
+The UI module handles the user interaction, regardless of how the UI is displayed on the screen. You can create your own UI as you do normally with any `Activity` or `Fragment` on Android. Since you have the freedom to create your own xml for the controls, you are not restricted to specific names or conditions. You can create the component as you wish, and then just pass the id reference of the specific component, and then the module handles its functionality internally. There's no need for worrying about handling the resources or icons for each button, calling the correct player methods or making sure the data displayed is correct, as AMP's UI module does that for you.
+
+== Prerequisite
+
+This guide assumes you can play back a video stream with the link:../../amp-basic-integration/index.html[basic integration]. Note the link:../../amp-player/index.html[AmpPlayer module] has already integrated the UI.
+
+== Getting started
+
+This guide follows the `AmpUIMobileGenericSample` Android Studio project, found in our link:https://mdtp-a.akamaihd.net/amp-android-sdk/premier[release page]. To integrate the plugin into your App, you need to:
+
+1) Copy the `amp-ui-mobile-generic.aar` to your project's `/libs` folder.
+
+2) Add the following line to the runnable module's `build.gradle` file:
+
+[,java]
+----
+	implementation(name:'amp-ui-mobile-generic', ext:'aar')
+----
+
+3) In the `Activity` where the playback is handled, import the following Java packages:
+
+[,java]
+----
+import com.akamai.amp.uimobile.generic.listeners.IMediaPlayerControllerListener;
+import com.akamai.amp.uimobile.generic.media.PlayerControlsOverlay;
+----
+
+4) Add an attribute of type `PlayerControlsOverlay`:
+
+[,java]
+----
+	private PlayerControlsOverlay mPlayerControlsOverlay;
+----
+
+This is a customized `FrameLayout` that contains the required methods to control the basic interaction between the user and a video player: play, pause, replay, scrub, DVR, etc.
+
+5) Add a UI Widget of type `PlayerControlsOverlay` to the ``Activity``'s xml layout:
+
+[,xml]
+----
+        <com.akamai.amp.uimobile.generic.media.PlayerControlsOverlay
+            android:id="@+id/playerControls"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"/>
+----
+
+6) In the ``Activity``s `onCreate()` method, create the instance of the `PlayerControlsOverlay`:
+
+[,java]
+----
+    mPlayerControlsOverlay = findViewById(R.id.playerControls);
+----
+
+7) After that, call the `setInlineUI()`:
+
+[,java]
+----
+    private void setFullScreenUI() {
+        mPlayerControlsOverlay.overrideControlsLayout(R.layout.androidsdk_mediaplayercontroller_fullscreen);
+        setupFullScreenPlayerControls();
+    }
+
+    private void setInlineUI() {
+        mPlayerControlsOverlay.overrideControlsLayout(R.layout.androidsdk_mediaplayercontroller);
+        setupInlinePlayerControls();
+    }
+
+    private void setupFullScreenPlayerControls() {
+        mPlayerControlsOverlay.managePlayPause(R.id.androidsdk_playPauseCtrl,
+                R.mipmap.amp_play,
+                R.mipmap.amp_pause);
+        mPlayerControlsOverlay.manageCurrentPosition(R.id.androidsdk_seekbarTextCtrl);
+        mPlayerControlsOverlay.manageTimeRemaining(R.id.video_duration);
+        mPlayerControlsOverlay.manageScrubbing(R.id.androidsdk_seekbarCtrl,
+                R.id.androidsdk_seekToLiveAction);
+        mPlayerControlsOverlay.manageFullScreen(R.id.androidsdk_fullscreenCtrl,
+                R.mipmap.amp_non_fullscreen_btn,
+                R.mipmap.amp_fullscreen_btn);
+    }
+
+    private void setupInlinePlayerControls() {
+        mPlayerControlsOverlay.managePlayPause(R.id.androidsdk_playPauseCtrl,
+                R.mipmap.play,
+                R.mipmap.pause);
+        mPlayerControlsOverlay.manageCurrentPosition(R.id.androidsdk_seekbarTextCtrl);
+        mPlayerControlsOverlay.manageTimeRemaining(R.id.video_duration);
+        mPlayerControlsOverlay.manageScrubbing(R.id.androidsdk_seekbarCtrl,
+                R.id.androidsdk_seekToLiveAction);
+
+        mPlayerControlsOverlay.manageQualityLevels(R.id.mute_button);
+
+        mPlayerControlsOverlay.manageFullScreen(R.id.androidsdk_fullscreenCtrl,
+                R.mipmap.amp_non_fullscreen_btn,
+                R.mipmap.amp_fullscreen_btn);
+
+    }
+----
+
+8) Copy both the `androidsdk_mediaplayercontroller.xml` and `androidsdk_mediaplayercontroller_fullscreen.xml` files to the `/res/layout` folder.
+
+9) On the `onResourceReady()` callback method, set the `VideoPlayerContainer` object to the `PlayerControlsOverlay` as follows:
+
+[,java]
+----
+mPlayerControlsOverlay.setVideoPlayerContainer(videoPlayerContainer);
+----
+
+'''
+
+If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+
+:date: 15/3/2023
+:last-revision: 15/3/2023
+include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]
