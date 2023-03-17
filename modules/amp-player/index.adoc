@@ -1,6 +1,6 @@
 include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
 
-= AMP Player
+= AMP Player wrapper integration
 :categories: ["core"]
 :page-layout: techdocs-devices
 :position: 0

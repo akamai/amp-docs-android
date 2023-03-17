@@ -1,6 +1,6 @@
 include::amp-web-sdk:ROOT:partial$amp-gobal-attributes.adoc[]
 
-= Google IMA / DAI
+= Google IMA/DAI Ads
 :categories: ["ads"]
 :page-layout: techdocs-devices
 
