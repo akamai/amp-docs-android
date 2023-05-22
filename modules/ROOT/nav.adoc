@@ -1,1 +1,39 @@
-* xref:amp-plugin-1:index.adoc[]
+.Playback
+* xref:amp-player:index.adoc[Getting Started]
+* xref:amp-basic-integration:index.adoc[Basic Integration]
+* xref:amp-chromecast:index.adoc[Chromecast]
+* xref:amp-closed-captions:index.adoc[Closed Captions]
+* xref:amp-config-files:index.adoc[Remote Config]
+* xref:amp-features-dvr:index.adoc[DVR]
+* xref:amp-id3-tags:index.adoc[Timed Metadata ID3]
+* xref:amp-player-error-handling:index.adoc[Error Handling]
+* xref:amp-rendering-360:index.adoc[360 Playback]
+
+.Analytics
+* xref:amp-analytics-adobe-experienceplatform:index.adoc[Adobe Experience Platform]
+* xref:amp-analytics-adobe-heartbeat:index.adoc[Adobe Heartbeat]
+* xref:amp-analytics-media-analytics:index.adoc[Akamai Media Analytics]
+* xref:amp-analytics-comscore-streamsense:index.adoc[Comscore Streamsense]
+* xref:amp-analytics-custom:index.adoc[Custom Analytics]
+* xref:amp-analytics-firebase:index.adoc[Firebase Analytics]
+* xref:amp-analytics-mux-data:index.adoc[Mux]
+* xref:amp-analytics-nielsen-dcr:index.adoc[Nielsen]
+
+.Ads
+* xref:amp-bidder-amazon-aps:index.adoc[Amazon Header Bidding]
+* xref:amp-ads-facebook-audiencenetwork:index.adoc[Facebook Audience Network]
+* xref:amp-ads-freewheel:index.adoc[Freewheel]
+* xref:amp-ads-google-ima:index.adoc[Google IMA]
+
+.UI
+* xref:amp-ui-tv:index.adoc[Android TV]
+* xref:amp-ui-mobile-generic:index.adoc[Generic UI]
+* xref:amp-ui-mobile:index.adoc[Mobile UI]
+
+.Security
+* xref:amp-features-drm:index.adoc[Digital Rights Managment (DRM)]
+
+.Advanced
+* xref:amp-player-events:index.adoc[Playback Events Manager]
+* xref:amp-downloader:index.adoc[Offline Playback Downloader]
+* xref:amp-features-ull:index.adoc[Ultra Low Latency Playback]
