@@ -21,9 +21,9 @@ The rest of this guide assumes you have successfully integrated AMP's Core (you 
 
 For reference, check the `+AmpAdsFreewheelSample+` Android Studio sample project in the release package. To integrate the plugin into your app, you need to:
 
-1) From *modules/AmpAdsFreewheelSample/libs*, copy the *amp-ads-freewheel.jar* and *FWAdManager.aar* to your project's */libs* folder.
+1. From *modules/AmpAdsFreewheelSample/libs*, copy the *amp-ads-freewheel.jar* and *FWAdManager.aar* to your project's */libs* folder.
  
-2) Import the following Java packages:
+2. Import the following Java packages:
 
 [,java]
 ----
@@ -35,14 +35,14 @@ import com.akamai.amp.ads.freewheel.AmpFreewheelManager;
 import com.akamai.amp.ads.freewheel.Freewheel;
 ----
 
-3) Add an object of the `+AmpFreewheelManager+` type in your Activity's members:
+3. Add an object of the `+AmpFreewheelManager+` type in your Activity's members:
 
 [,java]
 ----
     private AmpFreewheelManager freewheelManager;
 ----
 
-4) Initialize and configure that object, before calling the prepare
+4. Initialize and configure that object, before calling the prepare
 action of the player as follows:
 
 [,java]
@@ -64,7 +64,7 @@ action of the player as follows:
         freewheelManager.setVideoPlayerContainer(videoPlayerContainer);
 ----
 
-5) Set the `+VideoPlayerView+` object to the `+AmpFreewheelManager+` object when the `+VideoPlayerView+` is ready to use, for example when the `+onResourceReady(MediaResource resource)+` callback is triggered, as follows:
+5. Set the `+VideoPlayerView+` object to the `+AmpFreewheelManager+` object when the `+VideoPlayerView+` is ready to use, for example when the `+onResourceReady(MediaResource resource)+` callback is triggered, as follows:
 
 [,java]
 ----
@@ -78,7 +78,7 @@ action of the player as follows:
     }
 ----
 
-6) For each event in the Activity's life cycle there is an equivalent in the module, make sure each method is call on the respective event to implement automatic pause and recovery of the Ads in case the App implementing the Ads loses its foreground status:
+6. For each event in the Activity's life cycle there is an equivalent in the module, make sure each method is call on the respective event to implement automatic pause and recovery of the Ads in case the App implementing the Ads loses its foreground status:
 
 [,java]
 ----
@@ -189,9 +189,11 @@ Here we will explain the second option. Before you continue, make sure that the 
 
 === Steps to register TrueX's extension into Freewheel's plugin
 
-1) Download the latest `+FWTruexRenderer.aar+` from https://github.com/socialvibe/mobile_integration_doc/releases/[TrueX's release GitHub]. All of AMP tests have used FWTruexRenderer Android v2.0.12.
-2) Copy `+FWTruexRenderer.aar+` into your project's `+/libs+` folder.
-3) TrueX's extension requires https://google.github.io/volley/[Volley], so include it in the app's `+build.gradle+`:
+1. Download the latest `+FWTruexRenderer.aar+` from https://github.com/socialvibe/mobile_integration_doc/releases/[TrueX's release GitHub]. All of AMP tests have used FWTruexRenderer Android v2.0.12.
+
+2. Copy `+FWTruexRenderer.aar+` into your project's `+/libs+` folder.
+
+3. TrueX's extension requires https://google.github.io/volley/[Volley], so include it in the app's `+build.gradle+`:
 
 ....
 dependencies {
@@ -200,7 +202,7 @@ dependencies {
 }
 ....
 
-4) Register TrueX's extension into Freewheel's plugin:
+4. Register TrueX's extension into Freewheel's plugin:
 
 [source,java]
 ----
