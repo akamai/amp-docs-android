@@ -26,4 +26,4 @@ Inside the `trackPlayEvent()`, you would send the beacon to your backend (or usi
 
 '''
 
-If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+If you have further questions or comments, reach out to us via: https://player.akamai.com/support[https://player.akamai.com/support]

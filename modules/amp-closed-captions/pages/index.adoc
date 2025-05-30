@@ -94,4 +94,4 @@ The player also provides the option to load captions which are not embedded into
 
 '''
 
-If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+If you have further questions or comments, reach out to us via: https://player.akamai.com/support[https://player.akamai.com/support]
