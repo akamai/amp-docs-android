@@ -231,6 +231,6 @@ The other parameters for the `setPlugins()` method call extend from the `com.aka
 * All of the AMP plugins are also notified of the lifecycle events by the `AmpPlayer` class.
 * If you have further questions or comments, reach out to us via: https://player.akamai.com/support[https://player.akamai.com/support]
 
-:date: 14/3/2023
-:last-revision: 14/3/2023
+:date: 4/6/2025
+:last-revision: 4/6/2025
 include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]
