@@ -25,4 +25,4 @@ videoPlayerContainer.prepareResource(VIDEO_URL, DrmScheme.WIDEVINE, WIDEVINE_LIC
 
 '''
 
-If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+If you have further questions or comments, reach out to us via: https://player.akamai.com/support[https://player.akamai.com/support]

@@ -115,8 +115,8 @@ mPlayerControlsOverlay.setVideoPlayerContainer(videoPlayerContainer);
 
 '''
 
-If you have further questions or comments, reach out to us via link:mailto:amp-sdk-support@akamai.com[amp-sdk-support@akamai.com]
+If you have further questions or comments, reach out to us via: https://player.akamai.com/support[https://player.akamai.com/support]
 
-:date: 15/3/2023
-:last-revision: 15/3/2023
+:date: 4/6/2025
+:last-revision: 4/6/2025
 include::amp-web-sdk:ROOT:partial$amp-additional-info.adoc[]
