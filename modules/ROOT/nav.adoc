@@ -31,7 +31,7 @@
 * xref:amp-ui-mobile:index.adoc[Mobile UI]
 
 .Security
-* xref:amp-features-drm:index.adoc[Digital Rights Managment (DRM)]
+* xref:amp-features-drm:index.adoc[Digital Rights Management (DRM)]
 
 .Advanced
 * xref:amp-player-events:index.adoc[Playback Events Manager]

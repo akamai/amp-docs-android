@@ -16,20 +16,20 @@ The stream downloader is a functionality recently added to AMP's feature suite. 
 
 To download streams with AMP you must:
 
-* *Create an AmpDownloadManager instance:* An AMP instance has the scope of a playback session, meaning that if you need to implement the player on another view for example, a new instance is created. In case of the `AmpDownloadManager` you need to make it accesible for the entire App, since it keeps track of downloaded videos and you don't need to implement an AMP instance and play the stream to download it. Our recommendation is to create the instance in the `Application` object of your App as follows:
+* *Create an AmpDownloadManager instance:* An AMP instance has the scope of a playback session, meaning that if you need to implement the player on another view for example, a new instance is created. In case of the `AmpDownloadManager` you need to make it accessible for the entire App, since it keeps track of downloaded videos and you don't need to implement an AMP instance and play the stream to download it. Our recommendation is to create the instance in the `Application` object of your App as follows:
 
 [,java]
 ----
 AmpDownloadManager ampDownloadManager = AmpDownloader.create(Context context, int maxParallelDownloads);
 ----
 
-*Call an specific download action:*
+*Call a specific download action:*
 
 These are the main actions performed by the downloader:
 
-*Toogle Download:* It starts the extraction of the tracks available for download. Call the following method, It receives the activity context, name, uri and extension of the stream selected to download, and a `PrepareDownloadListener` which notifies whenever the list of tracks available is ready for selection:
+*Toggle Download:* It starts the extraction of the tracks available for download. Call the following method; it receives the activity context, name, uri and extension of the stream selected to download, and a `PrepareDownloadListener` which notifies whenever the list of tracks available is ready for selection:
 
-IMPORTANT: on Previous versions of the downloader, tracking selection for audio and metadata was not possible, with our current version, you can not only select them, but you can also select multiple renditions of the same type to download (before it was supported one rendition type only).
+IMPORTANT: in previous versions of the downloader, tracking selection for audio and metadata was not possible, with our current version, you can not only select them, but you can also select multiple renditions of the same type to download (before, only one rendition type was supported).
 
 [,java]
 ----
@@ -38,7 +38,7 @@ ampDownloadManager.toggleDownload(Context, String name, URI uri, String extensio
 
 Once the action is performed, there are three possible outcomes:
 
-* In case the stream selected only have a single rendition available to download, it is automatically selected and the downloader is ready to trigger the download action, in that case, the following callback if fired:
+* In case the stream selected only has a single rendition available to download, it is automatically selected and the downloader is ready to trigger the download action, in that case, the following callback is fired:
 +
 [,java]
 ----
@@ -68,14 +68,14 @@ The `TrackSelectionViewFragment` can be used to display the options available fo
 ampDownloadManager.extractSelectedRenderers(RendererSelectionListener listener);
 ----
 
-_Start Download:_ Perphaps the main option available for this feature, it starts the download action for a specific stream:
+_Start Download:_ Perhaps the main option available for this feature, it starts the download action for a specific stream:
 
 [,java]
 ----
 ampDownloadManager.startDownload(String name);
 ----
 
-_name:_ You need to provide an unique name for the stream, this is for an easy to use control of the downloader videos, as well as a more user friendly notification.
+_name:_ You need to provide a unique name for the stream, this is for an easy to use control of the downloader videos, as well as a more user friendly notification.
 
 *Delete Download:* When you have downloaded a video before, you can remove it by calling the following method:
 
@@ -86,7 +86,7 @@ ampDownloadManager.deleteDownload(Uri uri);
 
 _uri:_ This is a uri object based on the stream url, it functions as an identifier for the download.
 
-*Other Acitons*
+*Other Actions*
 
 Besides the main actions mentioned above, the Downloader Manager also offers a number of methods to guarantee the download feature can be implemented by the customer:
 

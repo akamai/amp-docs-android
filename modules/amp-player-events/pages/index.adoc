@@ -33,9 +33,9 @@ videoPlayerView.addEventsListener(new IPlayerEventsListener() {
 });
 ----
 
-In the example above, the app developer need to add custom code when the app is sent to the foreground (the `IPlayerEventsListener.PLAYER_EVENT_APP_SENT_TO_FOREGROUND` event is fired).
+In the example above, the app developer needs to add custom code when the app is sent to the foreground (the `IPlayerEventsListener.PLAYER_EVENT_APP_SENT_TO_FOREGROUND` event is fired).
 
-The `com.akamai.amp.media.PlayerEvents` class exist to give a meaningful name to the event IDs (the `toString()` method). It can also be used to check if the event ID is of certain type (the `matches()` method).
+The `com.akamai.amp.media.PlayerEvents` class exists to give a meaningful name to the event IDs (the `toString()` method). It can also be used to check if the event ID is of a certain type (the `matches()` method).
 
 == Events list
 

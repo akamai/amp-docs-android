@@ -19,7 +19,7 @@ The best approach to migrate to the latest version is:
 3. Add the imports Android Studio is suggesting
 4. If there are still some compilation errors, you might need to change something from the table in the [Summary of changes](#summary-of-changes) section
 
-In case of doublt, you can refer to the samples included in the release package. If there are further questions, you can also reach out to us via <amp-sdk-support@akamai.com>
+In case of doubt, you can refer to the samples included in the release package. If there are further questions, you can also reach out to us via <amp-sdk-support@akamai.com>
 
 &nbsp;
 
@@ -90,7 +90,7 @@ The IMAManager has been split into two: **AmpIMAManager** is now used to impleme
 
  The ads countdown is enabled by default.
 
-- The `AmpIMAManager` does not implement the `IAutoRecoveryCallback` which is used to get from other components like `Yospace` when an autorecovery event has occurred. Now, there is a new method who provides said callback.
+- The `AmpIMAManager` does not implement the `IAutoRecoveryCallback` which is used to get from other components like `Yospace` when an autorecovery event has occurred. Now, there is a new method that provides said callback.
 
     * **Old implementation:**
         ```java
@@ -102,7 +102,7 @@ The IMAManager has been split into two: **AmpIMAManager** is now used to impleme
         yospace.setAutoRecoveryTriggeredCallback(imaManager.getAutoRecoveryCallback());
         ```
 
-- The method `getAdsManager()` is now called `getManager()`, and it returns an object type `BaseManager`, which it can be casted to a `StreamManager` (for DAI) or an `AdManager` (for Client side Ads).
+- The method `getAdsManager()` is now called `getManager()`, and it returns an object type `BaseManager`, which can be cast to a `StreamManager` (for DAI) or an `AdManager` (for Client side Ads).
 
 ******
 
@@ -113,14 +113,14 @@ The IMAManager has been split into two: **AmpIMAManager** is now used to impleme
 - The YospaceComponent has been renamed, it is now called **AmpYospaceManager**.
 - Instead of using the `new` operator to create instances, it is now required to use the following builder methods:
 `Yospace.create(Activity activity, String url);`
-- The **AmpYospaceManager** does not implement the **IConnectionSwitchCallback** which is used to monitor when the playback has been interrupted due to connectivity problems. Now, there is a new method who provides said callback.
+- The **AmpYospaceManager** does not implement the **IConnectionSwitchCallback** which is used to monitor when the playback has been interrupted due to connectivity problems. Now, there is a new method that provides said callback.
 
     * **Old implementation:**
         ```java
         mVideoPlayerContainer.enableAutoRecovery(yospaceComponent);
         ```
 
-    * **New implemetentation:**
+    * **New implementation:**
         ```java
         mVideoPlayerContainer.enableAutoRecovery(yospace.getConnectionSwitchCallback());
         ```
@@ -139,11 +139,11 @@ The IMAManager has been split into two: **AmpIMAManager** is now used to impleme
     Freewheel.create(Context context);
     ```
 
-- The Manager is no longer implementing the UIEventListener which is used to monitor events from the UI controller. Now, there is a new method who provides said listener.
+- The Manager is no longer implementing the UIEventListener which is used to monitor events from the UI controller. Now, there is a new method that provides said listener.
   ```java
   ampFreewheelManager.getUIEventsListener();
   ```
-- The Manager in itself it no longer implementing the BidderCallback which it is used to capture Ad header bidding. Now, there is a new method who provides said callback.
+- The Manager in itself is no longer implementing the BidderCallback which is used to capture Ad header bidding. Now, there is a new method that provides said callback.
   ```java
   ampFreewheelManager.getBidderCallback();
   ```
