@@ -31,7 +31,7 @@ To integrate the plugin into your app, you will need to:
 
 1) Add the following .jars to your project's /libs folder:
 
-* *MuxCore.jar* (provided by Nielsen)
+* *MuxCore.jar* (provided by Mux)
 * *amp-analytics-mux-data.jar* (provided by Akamai)
 
 2) In the Activity where playback is handled, import the following Java classes:
@@ -101,7 +101,7 @@ Of special importance is the `setEnvironmentKey()` method from the `CustomerPlay
 
 4.2) If your app integrates any ad provider, it should register the ``AmpMuxDataAnalyticsTracker``'s `IAdsComponentListener` with the ads, as shown in the code snippet seen on step #4. Repeat this step for every ad provider that you're using in your app.
 
-4.3) There is no way for the AMP SDK to know, before the fact, that a preroll ad is expected. If you aer having a preroll in your session, make sure to call the `expectPreroll()` method, as shown in the code snippet seen on step #4.
+4.3) There is no way for the AMP SDK to know, before the fact, that a preroll ad is expected. If you are having a preroll in your session, make sure to call the `expectPreroll()` method, as shown in the code snippet seen on step #4.
 
 5) Reach out to your Mux representative, to get the current certification checklist they provide. Once you have validated every item on the checklist is correct, you can send your app to Mux for certification.
 

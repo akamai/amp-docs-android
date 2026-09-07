@@ -2,7 +2,7 @@
 :categories: ["others"]
 :page-layout: techdocs-devices
 
-Using the EXO mode, Digital Rights Managment (DRM) protected playback is supported on Android 4.4 (API level 19) and higher.
+Using the EXO mode, Digital Rights Management (DRM) protected playback is supported on Android 4.4 (API level 19) and higher.
 
 All Android devices are required to support Widevine modular DRM (with L3 security, although many devices also support L1).
 

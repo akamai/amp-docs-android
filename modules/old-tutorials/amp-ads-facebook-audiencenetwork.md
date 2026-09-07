@@ -84,7 +84,7 @@ If you don't want any midrolls, you can provide an empty array.
 
 ## Alternative ways of requesting ads
 
-Besides providing a list of midrolls you want to see, you can also enable the visualization of a single prerolls or a single postroll. The respective methods to accomplish this are:
+Besides providing a list of midrolls you want to see, you can also enable the visualization of a single preroll or a single postroll. The respective methods to accomplish this are:
 
 ```java
 adManager.enablePreroll(true);
@@ -97,7 +97,7 @@ Furthermore, you can request an ad at any point in time you need:
 adManager.requestAd();
 ```
 
-Also, there might be some cases where "optional" midroll ads could be needed (they are seen under normal circumstances, except if the customers seeks over them, in which case they are skipped). These type of ads are set with:
+Also, there might be some cases where "optional" midroll ads could be needed (they are seen under normal circumstances, except if the customer seeks over them, in which case they are skipped). These type of ads are set with:
 
 ```java
 adManager.addOptionalMidrolls({20, 40, 60});
